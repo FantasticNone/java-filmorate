@@ -30,6 +30,7 @@ class UserControllerTest {
     void createUser_InvalidEmail_ReturnsBadRequest() {
 
         User user = new User();
+        user.setId(1);
         user.setEmail("");
         user.setLogin("test");
         user.setName("test");
@@ -48,6 +49,7 @@ class UserControllerTest {
     void createUser_InvalidLogin_ReturnsBadRequest() {
 
         User user = new User();
+        user.setId(1);
         user.setEmail("test@example.com");
         user.setLogin("");
         user.setName("test");
@@ -66,6 +68,7 @@ class UserControllerTest {
     void createUser_ValidUser_ReturnsOk() {
 
         User user = new User();
+        user.setId(1);
         user.setEmail("test@example.com");
         user.setLogin("test");
         user.setName("test");
