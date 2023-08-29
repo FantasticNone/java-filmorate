@@ -7,12 +7,10 @@
 *.zip
 *.tar.gz
 *.rar
-*mvnw
-*.cmd
-checkstyle.xml
-.mvn
 hs_err_pid*
 out/
+*.md
+!README.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
