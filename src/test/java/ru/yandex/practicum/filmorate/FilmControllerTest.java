@@ -8,22 +8,18 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
     private FilmController filmController;
-    private Map<Integer, Film> films;
 
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
-        films = new HashMap<>();
-        filmController.setFilms(films);
+        filmController.getAllFilms();
     }
 
     @Test

@@ -122,12 +122,9 @@ public class FilmController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<Integer, Film>> getAllFilms() {
-        return ResponseEntity.ok(films);
-    }
-
-    public void setFilms(Map<Integer, Film> films) {
-        this.films = films;
+    public ResponseEntity<List<Film>> getAllFilms() {
+        List<Film> filmList = new ArrayList<>(films.values());
+        return ResponseEntity.ok(filmList);
     }
 }
 
