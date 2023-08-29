@@ -11,11 +11,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Film {
-    private int id;
+    private static int filmId = 1;
+
+    private Integer id;
     private String name;
     private String description;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
     private int duration;
+
+    public static synchronized int filmsId() {
+        return filmId++;
+    }
 }

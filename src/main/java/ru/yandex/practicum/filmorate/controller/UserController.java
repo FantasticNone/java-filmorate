@@ -90,9 +90,9 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            int generatedId = User.usersId();
-            user.setId(generatedId);
 
+            if (user.getId() == null)
+                errors.add("id не может быть пустым");
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
                 errors.add("Неправильный формат электронной почты");
             if (user.getLogin().isEmpty() || user.getLogin().contains(" "))
