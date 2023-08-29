@@ -18,6 +18,7 @@ public class User {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
+
     public User(String email, String login, String name, LocalDate birthday) {
         this.id = usersId();
         this.email = email;
