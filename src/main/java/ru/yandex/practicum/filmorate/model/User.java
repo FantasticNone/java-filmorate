@@ -19,14 +19,14 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
     public User(String email, String login, String name, LocalDate birthday) {
-        this.id = userId();
+        this.id = usersId();
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
     }
 
-    public static synchronized int userId() {
+    public static synchronized int usersId() {
         return userId++;
     }
 }

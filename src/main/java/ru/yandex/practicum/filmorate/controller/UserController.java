@@ -23,7 +23,7 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            int generatedId = User.userId();
+            int generatedId = User.usersId();
             user.setId(generatedId);
 
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
@@ -90,7 +90,7 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            int generatedId = User.userId();
+            int generatedId = User.usersId();
             user.setId(generatedId);
 
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
