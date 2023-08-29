@@ -23,12 +23,14 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
+            if (user.getId() == null)
+                errors.add("id не может быть пустым");
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
                 errors.add("Неправильный формат электронной почты");
             if (user.getLogin().isEmpty() || user.getLogin().contains(" "))
                 errors.add("Логин не может быть пустым и содержать пробелы");
             if (user.getName().isEmpty())
-                user.setName(user.getLogin());
+                errors.add("Имя не может быть пустым");
             if (user.getBirthday().isAfter(LocalDate.now()))
                 errors.add("Дата рождения не может быть в будущем");
 
@@ -82,9 +84,38 @@ public class UserController {
         }
     }
 
+    @PutMapping
+    public ResponseEntity<?> updateUserUnknown(@RequestBody User user) {
+        List<String> errors = new ArrayList<>();
+
+        try {
+            if (user.getId() == null)
+                errors.add("id не может быть пустым");
+            if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
+                errors.add("Неправильный формат электронной почты");
+            if (user.getLogin().isEmpty() || user.getLogin().contains(" "))
+                errors.add("Логин не может быть пустым и содержать пробелы");
+            if (user.getName().isEmpty())
+                user.setName(user.getLogin());
+            if (user.getBirthday().isAfter(LocalDate.now()))
+                errors.add("Дата рождения не может быть в будущем");
+
+            if (!errors.isEmpty())
+                throw new ValidationException(errors);
+
+            users.add(user);
+            log.info("Обновлен пользователь: {}", user);
+
+            return ResponseEntity.ok(user);
+        } catch (ValidationException ex) {
+            log.error("Ошибка валидации: {}", ex.getErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrors());
+        }
+    }
+
     @GetMapping
-    public List<User> getAllUsers() {
-        return users;
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(users);
     }
 
     public void setUsers(List<User> users) {
