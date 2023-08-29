@@ -23,8 +23,9 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            if (user.getId() == null)
-                errors.add("id не может быть пустым");
+            int generatedId = User.userId();
+            user.setId(generatedId);
+
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
                 errors.add("Неправильный формат электронной почты");
             if (user.getLogin().isEmpty() || user.getLogin().contains(" "))
@@ -89,8 +90,9 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            if (user.getId() == null)
-                errors.add("id не может быть пустым");
+            int generatedId = User.userId();
+            user.setId(generatedId);
+
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
                 errors.add("Неправильный формат электронной почты");
             if (user.getLogin().isEmpty() || user.getLogin().contains(" "))

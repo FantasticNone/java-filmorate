@@ -29,12 +29,7 @@ class UserControllerTest {
     @Test
     void createUser_InvalidEmail_ReturnsBadRequest() {
 
-        User user = new User();
-        user.setId(1);
-        user.setEmail("");
-        user.setLogin("test");
-        user.setName("test");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
+        User user = new User("", "test", "test", LocalDate.of(2000, 1, 1));
 
         ResponseEntity<?> responseEntity = userController.createUser(user);
 
@@ -48,12 +43,7 @@ class UserControllerTest {
     @Test
     void createUser_InvalidLogin_ReturnsBadRequest() {
 
-        User user = new User();
-        user.setId(1);
-        user.setEmail("test@example.com");
-        user.setLogin("");
-        user.setName("test");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
+        User user = new User("test@example.com", "", "test", LocalDate.of(2000, 1, 1));
 
         ResponseEntity<?> responseEntity = userController.createUser(user);
 
@@ -67,12 +57,7 @@ class UserControllerTest {
     @Test
     void createUser_ValidUser_ReturnsOk() {
 
-        User user = new User();
-        user.setId(1);
-        user.setEmail("test@example.com");
-        user.setLogin("test");
-        user.setName("test");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
+        User user = new User("test@example.com", "test", "test", LocalDate.of(2000, 1, 1));
 
         ResponseEntity<?> responseEntity = userController.createUser(user);
 
