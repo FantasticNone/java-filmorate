@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,13 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserControllerTest {
 
     private UserController userController;
-    private List<User> users;
 
     @BeforeEach
     void setUp() {
         userController = new UserController();
-        users = new ArrayList<>();
-        userController.setUsers(users);
+        userController.getAllUsers();
     }
 
     @Test

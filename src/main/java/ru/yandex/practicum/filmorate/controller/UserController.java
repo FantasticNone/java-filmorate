@@ -9,14 +9,16 @@ import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    private List<User> users = new ArrayList<>();
+    private Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
@@ -38,7 +40,7 @@ public class UserController {
             if (!errors.isEmpty())
                 throw new ValidationException(errors);
 
-            users.add(user);
+            users.put(user.getId(), user);
             log.info("Создан новый пользователь: {}", user);
             return ResponseEntity.ok(user);
 
@@ -53,10 +55,12 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-            User updatedUser = users.stream()
-                    .filter(u -> u.getId() == id)
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Пользователь с id:" + id + "не найден."));
+            User updatedUser = users.get(id);
+
+            if (updatedUser == null)
+                throw new IllegalArgumentException("Пользователь по id:" + id + " не найден.");
+
+
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
                 errors.add("Неправильный формат электронной почты");
             if (user.getLogin().isEmpty() || user.getLogin().contains(" "))
@@ -73,9 +77,11 @@ public class UserController {
             updatedUser.setLogin(user.getLogin());
             updatedUser.setName(user.getName());
             updatedUser.setBirthday(user.getBirthday());
-            log.info("Обновлен пользователь с id: {}", id);
 
+            users.replace(user.getId(), updatedUser);
+            log.info("Обновлен пользователь с id: {}", id);
             return ResponseEntity.ok(updatedUser);
+
         } catch (ValidationException ex) {
             log.error("Ошибка валидации: {}", ex.getErrors());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrors());
@@ -90,7 +96,6 @@ public class UserController {
         List<String> errors = new ArrayList<>();
 
         try {
-
             if (user.getId() == null)
                 errors.add("id не может быть пустым");
             if (user.getEmail().isEmpty() || !user.getEmail().contains("@"))
@@ -105,7 +110,7 @@ public class UserController {
             if (!errors.isEmpty())
                 throw new ValidationException(errors);
 
-            users.add(user);
+            users.put(user.getId(), user);
             log.info("Обновлен пользователь: {}", user);
 
             return ResponseEntity.ok(user);
@@ -117,11 +122,8 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(users);
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
+        List<User> userList = new ArrayList<>(users.values());
+        return ResponseEntity.ok(userList);
     }
 }
 
