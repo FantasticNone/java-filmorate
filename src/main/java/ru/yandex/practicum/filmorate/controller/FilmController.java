@@ -10,12 +10,14 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private List<Film> films = new ArrayList<>();
+    private Map<Integer, Film> films = new HashMap<>();
 
     @PostMapping
     public ResponseEntity<?> addFilm(@RequestBody Film film) {
@@ -37,7 +39,7 @@ public class FilmController {
             if (!errors.isEmpty())
                 throw new ValidationException(errors);
 
-            films.add(film);
+            films.put(film.getId(), film);
             log.info("Добавлен новый фильм: {}", film);
             return ResponseEntity.ok(film);
 
@@ -52,10 +54,10 @@ public class FilmController {
         List<String> errors = new ArrayList<>();
 
         try {
-            Film updatedFilm = films.stream()
-                    .filter(f -> f.getId() == id)
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Фильм по id:" + id + " не найден."));
+            Film updatedFilm = films.get(id);
+
+            if (updatedFilm == null)
+                throw new IllegalArgumentException("Фильм по id:" + id + " не найден.");
 
             if (film.getName().isEmpty())
                 errors.add("Название фильма не может быть пустым");
@@ -74,6 +76,7 @@ public class FilmController {
             updatedFilm.setReleaseDate(film.getReleaseDate());
             updatedFilm.setDuration(film.getDuration());
 
+            films.replace(film.getId(), updatedFilm);
             log.info("Обновлен фильм с id {}: {}", id, updatedFilm);
             return ResponseEntity.ok(updatedFilm);
 
@@ -105,7 +108,7 @@ public class FilmController {
             if (!errors.isEmpty())
                 throw new ValidationException(errors);
 
-            films.add(film);
+            films.put(film.getId(), film);
             log.info("Обновлен фильм с id {}: {}", film.getId(), film);
             return ResponseEntity.ok(film);
 
@@ -119,11 +122,11 @@ public class FilmController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Film>> getAllFilms() {
+    public ResponseEntity<Map<Integer, Film>> getAllFilms() {
         return ResponseEntity.ok(films);
     }
 
-    public void setFilms(List<Film> films) {
+    public void setFilms(Map<Integer, Film> films) {
         this.films = films;
     }
 }
