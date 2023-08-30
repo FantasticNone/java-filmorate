@@ -2,11 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
@@ -26,7 +23,8 @@ public class User {
 
     private String name;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Past(message = "Дата рождения не может быть в будущем")
+    @NotNull
     private LocalDate birthday;
 
     public User(String email, String login, String name, LocalDate birthday) {

@@ -36,16 +36,15 @@ public class FilmController {
         }
     }
 
-    @PutMapping("/{id}")
-    public Film updateFilm(@Valid @PathVariable int id, @RequestBody Film film) throws BadRequestException, NotFoundException {
+    @PutMapping
+    public Film updateFilm(@Valid @RequestBody Film film) throws BadRequestException, NotFoundException {
+
+        Film updatedFilm = films.get(film.getId());
 
         try {
-            if (!films.containsKey(id))
-                throw new NotFoundException("Фильм по id: " + id + " не найден.");
-            Film updatedFilm = films.get(id);
-
-            if (updatedFilm == null)
-                throw new NotFoundException("Фильм по id:" + id + " не найден.");
+            if (!films.containsKey(film.getId())) {
+                throw new NotFoundException("Фильм по id: " + film.getId() + " не найден.");
+            }
 
             updatedFilm.setName(film.getName());
             updatedFilm.setDescription(film.getDescription());
@@ -53,7 +52,7 @@ public class FilmController {
             updatedFilm.setDuration(film.getDuration());
 
             films.replace(film.getId(), updatedFilm);
-            log.info("Обновлен фильм с id {}: {}", id, updatedFilm);
+            log.info("Обновлен фильм с id {}: {}", film.getId(), updatedFilm);
             return updatedFilm;
 
         } catch (ValidationException ex) {

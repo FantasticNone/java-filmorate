@@ -49,26 +49,20 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    public User updateUser(@Valid @PathVariable int id, @RequestBody User user) throws BadRequestException, NotFoundException {
-        List<String> errors = new ArrayList<>();
+    @PutMapping
+    public User updateUser(@Valid @RequestBody User user) throws BadRequestException, NotFoundException {
+
+        User updatedUser = users.get(user.getId());
 
         try {
-            if (!users.containsKey(id))
-                throw new NotFoundException("Пользователь по id: " + id + " не найден.");
+            if (!users.containsKey(user.getId()) || updatedUser == null) {
+                throw new NotFoundException("Пользователь по id: " + user.getId() + " не найден.");
+            }
 
-            User updatedUser = users.get(id);
-
-            if (updatedUser == null)
-                throw new NotFoundException("Пользователь по id:" + id + " не найден.");
-
-            if (user.getName().isEmpty())
-                errors.add("Имя не может быть пустым");
-            if (user.getBirthday().isAfter(LocalDate.now()))
-                errors.add("Дата рождения не может быть в будущем");
-
-            if (!errors.isEmpty())
-                throw new ValidationException(errors);
+            if (user.getName() == null || user.getName().isBlank()) {
+                user.setName(user.getLogin());
+                log.info("Имя заменено на логин: {}", user.getLogin());
+            }
 
             updatedUser.setEmail(user.getEmail());
             updatedUser.setLogin(user.getLogin());
@@ -76,7 +70,7 @@ public class UserController {
             updatedUser.setBirthday(user.getBirthday());
 
             users.replace(user.getId(), updatedUser);
-            log.info("Обновлен пользователь с id: {}", id);
+            log.info("Обновлен пользователь с id: {}", user.getId());
             return updatedUser;
 
         } catch (ValidationException ex) {
