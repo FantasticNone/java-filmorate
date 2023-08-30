@@ -2,25 +2,30 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
 
 class UserControllerTest {
 
     private UserController userController;
+    private Validator validator;
 
     @BeforeEach
     void setUp() {
         userController = new UserController();
         userController.getAllUsers();
+
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     @Test
@@ -28,43 +33,42 @@ class UserControllerTest {
 
         User user = new User("", "test", "test", LocalDate.of(2000, 1, 1));
 
-        ResponseEntity<?> responseEntity = userController.createUser(user);
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Неправильный формат электронной почты", errors.get(0));
+        assertEquals(1, violations.size());
+
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals("Email не может быть пустым", violation.getMessage());
+
     }
 
     @Test
     void createUser_InvalidLogin_ReturnsBadRequest() {
+        User user = new User("test@example.com", "test test", "test", LocalDate.of(2000, 1, 1));
 
-        User user = new User("test@example.com", "", "test", LocalDate.of(2000, 1, 1));
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
 
-        ResponseEntity<?> responseEntity = userController.createUser(user);
+        assertEquals(1, violations.size());
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Логин не может быть пустым и содержать пробелы", errors.get(0));
+        ConstraintViolation<User> violation = violations.iterator().next();
+        assertEquals("Логин не может содержать пробелы", violation.getMessage());
     }
+
 
     @Test
     void createUser_ValidUser_ReturnsOk() {
 
         User user = new User("test@example.com", "test", "test", LocalDate.of(2000, 1, 1));
 
-        ResponseEntity<?> responseEntity = userController.createUser(user);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof User);
-        User createdUser = (User) responseEntity.getBody();
-        assertEquals(user.getEmail(), createdUser.getEmail());
-        assertEquals(user.getLogin(), createdUser.getLogin());
-        assertEquals(user.getName(), createdUser.getName());
-        assertEquals(user.getBirthday(), createdUser.getBirthday());
+        try {
+            User createdUser = userController.createUser(user);
+            assertEquals(user.getEmail(), createdUser.getEmail());
+            assertEquals(user.getLogin(), createdUser.getLogin());
+            assertEquals(user.getName(), createdUser.getName());
+            assertEquals(user.getBirthday(), createdUser.getBirthday());
+        } catch (BadRequestException ex) {
+            throw new AssertionError("Unexpected BadRequestException");
+        }
     }
 }
 

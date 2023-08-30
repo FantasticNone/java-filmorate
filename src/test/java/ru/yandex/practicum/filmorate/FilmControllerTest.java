@@ -2,24 +2,30 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import java.util.Set;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
     private FilmController filmController;
+
+    private Validator validator;
 
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
         filmController.getAllFilms();
+
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
+
     }
 
     @Test
@@ -31,13 +37,13 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2021, 1, 1));
         film.setDuration(120);
 
-        ResponseEntity<?> responseEntity = filmController.addFilm(film);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Название фильма не может быть пустым", errors.get(0));
+        assertEquals(1, violations.size());
+
+        ConstraintViolation<Film> violation = violations.iterator().next();
+        assertEquals("Название фильма не может быть пустым", violation.getMessage());
+
     }
 
     @Test
@@ -51,13 +57,12 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(120);
 
-        ResponseEntity<?> responseEntity = filmController.addFilm(film);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Максимальная длина описания - 200 символов", errors.get(0));
+        assertEquals(1, violations.size());
+
+        ConstraintViolation<Film> violation = violations.iterator().next();
+        assertEquals("Максимальная длина описания - 200 символов", violation.getMessage());
     }
 
     @Test
@@ -69,13 +74,12 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
         film.setDuration(120);
 
-        ResponseEntity<?> responseEntity = filmController.addFilm(film);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Дата релиза не может быть раньше 28 декабря 1895 года", errors.get(0));
+        assertEquals(1, violations.size());
+
+        ConstraintViolation<Film> violation = violations.iterator().next();
+        assertEquals("Дата релиза не может быть раньше 28 декабря 1895 года", violation.getMessage());
     }
 
     @Test
@@ -87,13 +91,12 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2023, 1, 1));
         film.setDuration(0);
 
-        ResponseEntity<?> responseEntity = filmController.addFilm(film);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody() instanceof List);
-        List<String> errors = (List<String>) responseEntity.getBody();
-        assertEquals(1, errors.size());
-        assertEquals("Продолжительность фильма должна быть положительной", errors.get(0));
+        assertEquals(1, violations.size());
+
+        ConstraintViolation<Film> violation = violations.iterator().next();
+        assertEquals("Продолжительность фильма должна быть положительной", violation.getMessage());
     }
 
     @Test
@@ -105,10 +108,12 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2021, 1, 1));
         film.setDuration(120);
 
-        ResponseEntity<?> responseEntity = filmController.addFilm(film);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        try {
+            Film addedFilm = filmController.addFilm(film);
+            assertEquals(film, addedFilm);
+        } catch (BadRequestException ex) {
+            throw new AssertionError("Unexpected BadRequestException");
+        }
     }
 }
-
 

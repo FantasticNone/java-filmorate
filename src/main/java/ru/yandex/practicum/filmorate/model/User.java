@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Data
@@ -12,22 +15,29 @@ public class User {
     private static int userId = 1;
 
     private Integer id;
+
+    @NotBlank(message = "Email не может быть пустым")
+    @Email(message = "Неправильный формат электронной почты")
     private String email;
+
+    @NotBlank(message = "Логин не может быть пустым")
+    @Pattern(regexp = "\\S+", message = "Логин не может содержать пробелы")
     private String login;
+
     private String name;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     public User(String email, String login, String name, LocalDate birthday) {
-        this.id = usersId();
+        this.id = userId();
         this.email = email;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
     }
 
-    public static synchronized int usersId() {
+    public static synchronized int userId() {
         return userId++;
     }
 }
