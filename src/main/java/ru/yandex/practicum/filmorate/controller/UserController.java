@@ -4,11 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,67 +23,47 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) throws BadRequestException {
-        List<String> errors = new ArrayList<>();
 
-        try {
-            int userId = userId();
-            user.setId(userId);
-
-            if (user.getName() == null)
-                user.setName(user.getLogin());
-            if (user.getBirthday().isAfter(LocalDate.now()))
-                errors.add("Дата рождения не может быть в будущем");
-
-            if (!errors.isEmpty())
-                throw new ValidationException(errors);
-
-            users.put(user.getId(), user);
-            log.info("Создан новый пользователь: {}", user);
-            return user;
-
-        } catch (ValidationException ex) {
-            log.error("Ошибка валидации: {}", ex.getErrors());
-            throw new BadRequestException(ex.getErrors());
-        }
+        int userId = userId();
+        user.setId(userId);
+        setNameIfEmpty(user);
+        users.put(user.getId(), user);
+        log.info("Создан новый пользователь: {}", user);
+        return user;
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws BadRequestException, NotFoundException {
+    public User updateUser(@Valid @RequestBody User user) throws NotFoundException {
 
         User updatedUser = users.get(user.getId());
 
-        try {
-            if (!users.containsKey(user.getId()) || updatedUser == null) {
-                throw new NotFoundException("Пользователь по id: " + user.getId() + " не найден.");
-            }
-
-            if (user.getName() == null || user.getName().isBlank()) {
-                user.setName(user.getLogin());
-                log.info("Имя заменено на логин: {}", user.getLogin());
-            }
-
-            updatedUser.setEmail(user.getEmail());
-            updatedUser.setLogin(user.getLogin());
-            updatedUser.setName(user.getName());
-            updatedUser.setBirthday(user.getBirthday());
-
-            users.replace(user.getId(), updatedUser);
-            log.info("Обновлен пользователь с id: {}", user.getId());
-            return updatedUser;
-
-        } catch (ValidationException ex) {
-            log.error("Ошибка валидации: {}", ex.getErrors());
-            throw new BadRequestException(ex.getErrors());
-        } catch (NotFoundException ex) {
-            log.error("Ошибка при обновлении пользователя: {}", ex.getMessage());
-            throw ex;
+        if (!users.containsKey(user.getId()) || updatedUser == null) {
+            throw new NotFoundException("Пользователь по id: " + user.getId() + " не найден.");
         }
+
+        setNameIfEmpty(user);
+
+        updatedUser.setEmail(user.getEmail());
+        updatedUser.setLogin(user.getLogin());
+        updatedUser.setName(user.getName());
+        updatedUser.setBirthday(user.getBirthday());
+
+        users.replace(user.getId(), updatedUser);
+        log.info("Обновлен пользователь с id: {}", user.getId());
+        return updatedUser;
     }
 
     @GetMapping
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>(users.values());
         return userList;
+    }
+
+    private void setNameIfEmpty(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+            log.info("Имя заменено на логин: {}", user.getLogin());
+        }
     }
 }
 
