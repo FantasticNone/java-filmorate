@@ -9,6 +9,9 @@
 *.rar
 hs_err_pid*
 out/
+*.md
+!README.md
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
