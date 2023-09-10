@@ -53,7 +53,7 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    private Film getFilmById(Long filmId) {
+    public Film getFilmById(Long filmId) {
         return filmStorage.getAllFilms()
                 .stream()
                 .filter(film -> film.getId().equals(filmId))

@@ -64,13 +64,32 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("Пользователь по id: " + userId + " не найден."));
     }
 
-    public List<User> getCommonFriends(User user1, User user2) {
-        List<Long> user1FriendIds = new ArrayList<>(user1.getFriends());
-        List<Long> user2FriendIds = new ArrayList<>(user2.getFriends());
+    public List<User> getFriends(Long userId) throws NotFoundException {
+        User user = getUserById(userId);
+        if (user != null) {
+            List<Long> friendIds = new ArrayList<>(user.getFriends());
+            return friendIds.stream()
+                    .map(friendId -> getUserById(friendId))
+                    .collect(Collectors.toList());
+        } else {
+            throw new NotFoundException("Пользователь по id: " + userId + " не найден.");
+        }
+    }
 
-        return user1FriendIds.stream()
-                .filter(user2FriendIds::contains)
-                .map(userId -> getUserById(userId))
-                .collect(Collectors.toList());
+    public List<User> getCommonFriends(Long userId, Long otherId) throws NotFoundException {
+        User user1 = getUserById(userId);
+        User user2 = getUserById(otherId);
+
+        if (user1 != null && user2 != null) {
+            List<Long> user1FriendIds = new ArrayList<>(user1.getFriends());
+            List<Long> user2FriendIds = new ArrayList<>(user2.getFriends());
+
+            return user1FriendIds.stream()
+                    .filter(user2FriendIds::contains)
+                    .map(friendId -> getUserById(friendId))
+                    .collect(Collectors.toList());
+        } else {
+            throw new NotFoundException("Пользователь по id: " + userId + " или " + otherId + " не найден.");
+        }
     }
 }

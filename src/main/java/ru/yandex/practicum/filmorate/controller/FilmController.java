@@ -38,9 +38,29 @@ public class FilmController {
 
     }
 
+    @PutMapping("/{id}/like/{userId}")
+    public void addLikeToFilm(
+            @Valid @PathVariable long id,
+            @Valid @PathVariable long userId
+    ) {
+        filmService.addLike(id, userId);
+    }
+
     @GetMapping
     public List<Film> getAllFilms() {
         return filmService.getAllFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@Valid @PathVariable long id) throws NotFoundException {
+        return filmService.getFilmById(id);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(
+            @RequestParam(defaultValue = "10") int count
+    ) {
+        return filmService.getTopLikedFilms(count);
     }
 
     @DeleteMapping("/{id}")
@@ -49,5 +69,13 @@ public class FilmController {
         film.setId(id);
         log.info("Удален фильм с id: {}", id);
         filmService.deleteFilm(film);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void removeLikeFromFilm(
+            @Valid @PathVariable long id,
+            @Valid @PathVariable long userId
+    ) {
+        filmService.removeLike(id, userId);
     }
 }
