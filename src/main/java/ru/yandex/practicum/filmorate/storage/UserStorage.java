@@ -9,9 +9,4 @@ public interface UserStorage {
     User updateUser(User user);
     void deleteUser(User user);
     List<User> getAllUsers();
-    void addFriend(Long userId, Long friendId);
-
-    void removeFriend(Long userId, Long friendId);
-
-    User getUserById(Long userId);
 }

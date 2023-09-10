@@ -11,11 +11,11 @@ import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private Map<Integer, Film> films = new HashMap<>();
+    private Map<Long, Film> films = new HashMap<>();
 
     @Override
     public Film addFilm(Film film) {
-        int filmId = Film.filmsId();
+        long filmId = Film.filmsId();
         film.setId(filmId);
 
         films.put(film.getId(), film);

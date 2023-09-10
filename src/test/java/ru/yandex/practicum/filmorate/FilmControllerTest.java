@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
@@ -24,7 +25,7 @@ public class FilmControllerTest {
     @BeforeEach
     void setUp() {
         FilmStorage filmStorage = new InMemoryFilmStorage();
-        filmController = new FilmController(filmStorage);
+        filmController = new FilmController(new FilmService(filmStorage));
         filmController.getAllFilms();
 
 

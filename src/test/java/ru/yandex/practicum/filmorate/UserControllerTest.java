@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -25,7 +26,7 @@ class UserControllerTest {
     @BeforeEach
     void setUp() {
         UserStorage userStorage = new InMemoryUserStorage();
-        userController = new UserController(userStorage);
+        userController = new UserController(new UserService(userStorage));
         userController.getAllUsers();
 
         validator = Validation.buildDefaultValidatorFactory().getValidator();

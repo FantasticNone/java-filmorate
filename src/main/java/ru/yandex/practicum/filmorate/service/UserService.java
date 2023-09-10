@@ -20,7 +20,7 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-    public User addUser(User user) throws BadRequestException {
+    public User createUser(User user) throws BadRequestException {
         return userStorage.createUser(user);
     }
 
@@ -37,11 +37,31 @@ public class UserService {
     }
 
     public void addFriend(Long userId, Long friendId) {
-        userStorage.addFriend(userId, friendId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        if (user != null && friend != null) {
+            user.addFriend(friendId);
+            friend.addFriend(userId);
+        }
     }
 
     public void removeFriend(Long userId, Long friendId) {
-        userStorage.removeFriend(userId, friendId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+
+        if (user != null && friend != null) {
+            user.removeFriend(friendId);
+            friend.removeFriend(userId);
+        }
+    }
+
+    public User getUserById(Long userId) {
+        return userStorage.getAllUsers()
+                .stream()
+                .filter(user -> user.getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Пользователь по id: " + userId + " не найден."));
     }
 
     public List<User> getCommonFriends(User user1, User user2) {
@@ -50,7 +70,7 @@ public class UserService {
 
         return user1FriendIds.stream()
                 .filter(user2FriendIds::contains)
-                .map(userId -> userStorage.getUserById(userId))
+                .map(userId -> getUserById(userId))
                 .collect(Collectors.toList());
     }
 }

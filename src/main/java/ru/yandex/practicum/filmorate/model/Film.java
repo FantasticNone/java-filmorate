@@ -11,6 +11,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +20,7 @@ import java.time.LocalDate;
 public class Film {
     private static int filmId = 1;
 
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -35,8 +37,18 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
+    private Set<Long> likes = new HashSet<>();
+
 
     public static synchronized int filmsId() {
         return filmId++;
+    }
+
+    public void addLike(Long likeId) {
+        likes.add(likeId);
+    }
+
+    public void removeLike(Long likeId) {
+        likes.remove(likeId);
     }
 }

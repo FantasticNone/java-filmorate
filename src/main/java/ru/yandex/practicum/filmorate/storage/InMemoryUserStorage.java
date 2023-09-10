@@ -60,36 +60,6 @@ public class InMemoryUserStorage implements UserStorage {
         return userList;
     }
 
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-
-        if (user != null && friend != null) {
-            user.addFriend(friendId);
-            friend.addFriend(userId);
-        }
-    }
-
-    public void removeFriend(Long userId, Long friendId) {
-        User user = getUserById(userId);
-        User friend = getUserById(friendId);
-
-        if (user != null && friend != null) {
-            user.removeFriend(friendId);
-            friend.removeFriend(userId);
-        }
-    }
-
-    public User getUserById(Long userId) {
-        for (User user : users.values()) {
-            if (user.getId().equals(userId)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
     private void setNameIfEmpty(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
