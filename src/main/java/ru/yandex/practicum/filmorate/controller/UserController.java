@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -53,6 +52,7 @@ public class UserController {
         log.info("Удален пользователь с id: {}", id);
         userService.deleteUser(user);
     }
+
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@Valid @PathVariable long id, @Valid @PathVariable long friendId) {
         log.info("Пользователь с id {} добавил в друзья пользователя с id {}", id, friendId);
