@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -30,9 +29,9 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @PathVariable long id, @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
 
-        film.setId(id);
+        film.setId(film.getId());
         log.info("Обновлен фильм с id {}.", film.getId());
         return filmService.updateFilm(film);
 

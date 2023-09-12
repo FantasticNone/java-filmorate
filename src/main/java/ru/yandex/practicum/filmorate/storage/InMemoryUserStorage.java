@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
 
     @Override
-    public User createUser(User user) throws BadRequestException {
+    public User createUser(User user) throws ValidationException {
         long userId = userId();
         user.setId(userId);
         setNameIfEmpty(user);
@@ -63,7 +63,6 @@ public class InMemoryUserStorage implements UserStorage {
     private void setNameIfEmpty(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-            //log.info("Имя заменено на логин: {}", user.getLogin());
         }
     }
 }

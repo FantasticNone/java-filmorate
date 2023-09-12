@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,15 +40,18 @@ public class FilmService {
     }
 
     public void removeLike(Long filmId, Long likeId) {
+        if (filmId < 0 || likeId < 0) {
+            throw new NotFoundException("Значения не могут быть отрицательными.");
+        }
         Film film = getFilmById(filmId);
         film.removeLike(likeId);
     }
 
-    public List<Film> getTopLikedFilms(int limit) {
+    public List<Film> getTopLikedFilms(int count) {
         return filmStorage.getAllFilms()
                 .stream()
-                .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
-                .limit(limit)
+                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
+                .limit(count)
                 .collect(Collectors.toList());
     }
 

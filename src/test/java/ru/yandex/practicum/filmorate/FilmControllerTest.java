@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -24,8 +24,7 @@ public class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        FilmStorage filmStorage = new InMemoryFilmStorage();
-        filmController = new FilmController(new FilmService(filmStorage));
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
         filmController.getAllFilms();
 
 
@@ -116,7 +115,7 @@ public class FilmControllerTest {
         try {
             Film addedFilm = filmController.addFilm(film);
             assertEquals(film, addedFilm);
-        } catch (BadRequestException ex) {
+        } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
     }

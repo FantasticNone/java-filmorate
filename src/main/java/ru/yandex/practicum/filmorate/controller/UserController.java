@@ -2,11 +2,10 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -23,17 +22,17 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody User user) throws BadRequestException {
+    public User createUser(@Valid @RequestBody User user) throws ValidationException {
 
         log.info("Создан новый пользователь: {}", user);
         return userService.createUser(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @PathVariable long id, @RequestBody User user) throws NotFoundException {
+    public User updateUser(@Valid @RequestBody User user) throws NotFoundException {
 
-        user.setId(id);
-        log.info("Обновлен пользователь с id: {}", id);
+        user.setId(user.getId());
+        log.info("Обновлен пользователь с id: {}", user.getId());
         return userService.updateUser(user);
     }
 

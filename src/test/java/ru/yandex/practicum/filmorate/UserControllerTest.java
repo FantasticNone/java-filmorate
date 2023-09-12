@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
@@ -25,8 +25,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        UserStorage userStorage = new InMemoryUserStorage();
-        userController = new UserController(new UserService(userStorage));
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
         userController.getAllUsers();
 
         validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -70,7 +69,7 @@ class UserControllerTest {
             assertEquals(user.getLogin(), createdUser.getLogin());
             assertEquals(user.getName(), createdUser.getName());
             assertEquals(user.getBirthday(), createdUser.getBirthday());
-        } catch (BadRequestException ex) {
+        } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
     }
