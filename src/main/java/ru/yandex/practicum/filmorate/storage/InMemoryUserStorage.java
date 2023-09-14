@@ -4,53 +4,52 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static ru.yandex.practicum.filmorate.model.User.userId;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
 
+    private static long userId = 1;
+
     @Override
-    public User createUser(User user) throws ValidationException {
-        long userId = userId();
-        user.setId(userId);
-        setNameIfEmpty(user);
+    public Optional<User> createUser(User user) throws ValidationException {
+
+        user.setId(generateUserId());
         users.put(user.getId(), user);
 
-        return user;
+        return Optional.of(user);
     }
 
     @Override
-    public User updateUser(User user) throws NotFoundException {
+    public Optional<User> updateUser(User user) throws NotFoundException {
         User updatedUser = users.get(user.getId());
 
         if (updatedUser == null) {
             throw new NotFoundException("Пользователь по id:" + user.getId() + " не найден.");
         }
 
-        setNameIfEmpty(user);
-
         updatedUser.setEmail(user.getEmail());
         updatedUser.setLogin(user.getLogin());
         updatedUser.setName(user.getName());
         updatedUser.setBirthday(user.getBirthday());
 
-        return updatedUser;
+        return Optional.of(updatedUser);
     }
 
     @Override
-    public void deleteUser(User user) {
-        User deletedUser = users.get(user.getId());
+    public void deleteUser(long id) {
+        User deletedUser = users.get(id);
 
         if (deletedUser == null) {
-            throw new NotFoundException("Пользователь с id: " + user.getId() + " не найден.");
+            throw new NotFoundException("Пользователь с id: " + id + " не найден.");
         }
         users.remove(deletedUser.getId());
+    }
+
+    @Override
+    public Optional<User> getUserById(Long userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     @Override
@@ -59,9 +58,7 @@ public class InMemoryUserStorage implements UserStorage {
         return userList;
     }
 
-    private void setNameIfEmpty(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+    private synchronized long generateUserId() {
+        return userId++;
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -9,27 +10,26 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
 
-    @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
-
-    public User createUser(User user) throws ValidationException {
+    public Optional<User> createUser(User user) throws ValidationException {
+        setNameIfEmpty(user);
         return userStorage.createUser(user);
     }
 
-    public User updateUser(User user) throws NotFoundException {
+    public Optional<User> updateUser(User user) throws NotFoundException {
+        setNameIfEmpty(user);
         return userStorage.updateUser(user);
     }
 
-    public void deleteUser(User user) {
-        userStorage.deleteUser(user);
+    public void deleteUser(long id) {
+        userStorage.deleteUser(id);
     }
 
     public List<User> getAllUsers() {
@@ -57,10 +57,7 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userStorage.getAllUsers()
-                .stream()
-                .filter(user -> user.getId().equals(userId))
-                .findFirst()
+        return userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь по id: " + userId + " не найден."));
     }
 
@@ -90,6 +87,12 @@ public class UserService {
                     .collect(Collectors.toList());
         } else {
             throw new NotFoundException("Пользователь по id: " + userId + " или " + otherId + " не найден.");
+        }
+    }
+
+    private void setNameIfEmpty(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
     }
 }

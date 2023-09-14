@@ -1,33 +1,30 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
 
-    @Autowired
-    public FilmService(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
-    }
-
-    public Film addFilm(Film film) {
+    public Optional<Film> addFilm(Film film) {
         return filmStorage.addFilm(film);
     }
 
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
 
-    public void deleteFilm(Film film) {
-        filmStorage.deleteFilm(film);
+    public void deleteFilm(long id) {
+        filmStorage.deleteFilm(id);
     }
 
     public List<Film> getAllFilms() {
@@ -56,10 +53,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Long filmId) {
-        return filmStorage.getAllFilms()
-                .stream()
-                .filter(film -> film.getId().equals(filmId))
-                .findFirst()
+        return filmStorage.getFilmById(filmId)
                 .orElseThrow(() -> new NotFoundException("Фильм по id: " + filmId + " не найден."));
     }
 }

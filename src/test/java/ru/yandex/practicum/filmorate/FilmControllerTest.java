@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.Optional;
 import java.util.Set;
 import java.time.LocalDate;
 
@@ -112,8 +113,8 @@ public class FilmControllerTest {
         film.setDuration(120);
 
         try {
-            Film addedFilm = filmController.addFilm(film);
-            assertEquals(film, addedFilm);
+            Optional<Film> addedFilm = filmController.addFilm(film);
+            assertEquals(film, addedFilm.get());
         } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }

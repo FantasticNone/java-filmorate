@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.util.Optional;
 import java.util.Set;
 
 class UserControllerTest {
@@ -60,14 +61,15 @@ class UserControllerTest {
     @Test
     void createUser_ValidUser_ReturnsOk() {
 
-        User user = new User("test@example.com", "test", "test", LocalDate.of(2000, 1, 1));
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setLogin("test");
+        user.setName("test");
+        user.setBirthday(LocalDate.of(2000, 1, 1));
 
         try {
-            User createdUser = userController.createUser(user);
-            assertEquals(user.getEmail(), createdUser.getEmail());
-            assertEquals(user.getLogin(), createdUser.getLogin());
-            assertEquals(user.getName(), createdUser.getName());
-            assertEquals(user.getBirthday(), createdUser.getBirthday());
+            Optional<User> createdUser = userController.createUser(user);
+            assertEquals(user, createdUser.get());
         } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
