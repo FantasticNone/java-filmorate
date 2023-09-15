@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
 
-    public Optional<User> createUser(User user) throws ValidationException {
+    public User createUser(User user) {
         setNameIfEmpty(user);
         return userStorage.createUser(user);
     }
 
-    public Optional<User> updateUser(User user) throws NotFoundException {
+    public User updateUser(User user) {
         setNameIfEmpty(user);
         return userStorage.updateUser(user);
     }

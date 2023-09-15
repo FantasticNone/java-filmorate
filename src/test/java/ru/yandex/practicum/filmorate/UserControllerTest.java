@@ -68,8 +68,8 @@ class UserControllerTest {
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
         try {
-            Optional<User> createdUser = userController.createUser(user);
-            assertEquals(user, createdUser.get());
+            User createdUser = userController.createUser(user);
+            assertEquals(user, createdUser);
         } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }

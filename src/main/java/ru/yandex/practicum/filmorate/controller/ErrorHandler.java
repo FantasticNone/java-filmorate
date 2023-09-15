@@ -19,19 +19,11 @@ public class ErrorHandler {
 
     @ExceptionHandler({ValidationException.class,
             MethodArgumentNotValidException.class,
-            RuntimeException.class})
+            ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(final RuntimeException e) {
+    public ResponseEntity<String> handleValidationException(final RuntimeException e) {
         log.debug("Получен статус 400 Bad Request: {}", e.getMessage(), e);
-        return new ErrorResponse(
-                e.getMessage()
-        );
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex) {
-        log.debug("Получен статус 400 Bad Request: {}", ex.getMessage(), ex);
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler

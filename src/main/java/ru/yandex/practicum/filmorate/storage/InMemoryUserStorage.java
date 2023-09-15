@@ -13,16 +13,16 @@ public class InMemoryUserStorage implements UserStorage {
     private static long userId = 1;
 
     @Override
-    public Optional<User> createUser(User user) throws ValidationException {
+    public User createUser(User user) {
 
         user.setId(generateUserId());
         users.put(user.getId(), user);
 
-        return Optional.of(user);
+        return user;
     }
 
     @Override
-    public Optional<User> updateUser(User user) throws NotFoundException {
+    public User updateUser(User user) {
         User updatedUser = users.get(user.getId());
 
         if (updatedUser == null) {
@@ -34,7 +34,7 @@ public class InMemoryUserStorage implements UserStorage {
         updatedUser.setName(user.getName());
         updatedUser.setBirthday(user.getBirthday());
 
-        return Optional.of(updatedUser);
+        return updatedUser;
     }
 
     @Override

@@ -15,11 +15,11 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
 
-    public Optional<Film> addFilm(Film film) {
+    public Film addFilm(Film film) {
         return filmStorage.addFilm(film);
     }
 
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
 

@@ -13,16 +13,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     private static long filmId = 1;
 
     @Override
-    public Optional<Film> addFilm(Film film) {
+    public Film addFilm(Film film) {
 
         film.setId(generateFilmId());
 
         films.put(film.getId(), film);
-        return Optional.of(film);
+        return film;
     }
 
     @Override
-    public Optional<Film> updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         Film updatedFilm = films.get(film.getId());
 
         if (updatedFilm == null) {
@@ -34,7 +34,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         updatedFilm.setReleaseDate(film.getReleaseDate());
         updatedFilm.setDuration(film.getDuration());
 
-        return Optional.of(updatedFilm);
+        return updatedFilm;
     }
 
     @Override

@@ -21,14 +21,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public Optional<User> createUser(@Valid @RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
 
         log.info("Создан новый пользователь: {}", user);
         return userService.createUser(user);
     }
 
     @PutMapping
-    public Optional<User> updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
 
         user.setId(user.getId());
         log.info("Обновлен пользователь с id: {}", user.getId());

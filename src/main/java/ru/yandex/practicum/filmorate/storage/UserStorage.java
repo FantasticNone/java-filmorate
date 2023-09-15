@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserStorage {
-    Optional<User> createUser(User user);
+    User createUser(User user);
 
-    Optional<User> updateUser(User user);
+    User updateUser(User user);
 
     void deleteUser(long id);
 

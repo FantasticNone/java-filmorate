@@ -22,14 +22,14 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Optional<Film> addFilm(@Valid @RequestBody Film film) {
+    public Film addFilm(@Valid @RequestBody Film film) {
 
         log.info("Добавлен новый фильм: {}", film);
         return filmService.addFilm(film);
     }
 
     @PutMapping
-    public Optional<Film> updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
 
         film.setId(film.getId());
         log.info("Обновлен фильм с id {}.", film.getId());

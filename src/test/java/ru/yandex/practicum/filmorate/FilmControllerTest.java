@@ -113,8 +113,8 @@ public class FilmControllerTest {
         film.setDuration(120);
 
         try {
-            Optional<Film> addedFilm = filmController.addFilm(film);
-            assertEquals(film, addedFilm.get());
+            Film addedFilm = filmController.addFilm(film);
+            assertEquals(film, addedFilm);
         } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
