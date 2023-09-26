@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -22,7 +24,7 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
         userController.getAllUsers();
 
         validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -58,15 +60,16 @@ class UserControllerTest {
     @Test
     void createUser_ValidUser_ReturnsOk() {
 
-        User user = new User("test@example.com", "test", "test", LocalDate.of(2000, 1, 1));
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setLogin("test");
+        user.setName("test");
+        user.setBirthday(LocalDate.of(2000, 1, 1));
 
         try {
             User createdUser = userController.createUser(user);
-            assertEquals(user.getEmail(), createdUser.getEmail());
-            assertEquals(user.getLogin(), createdUser.getLogin());
-            assertEquals(user.getName(), createdUser.getName());
-            assertEquals(user.getBirthday(), createdUser.getBirthday());
-        } catch (BadRequestException ex) {
+            assertEquals(user, createdUser);
+        } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
     }

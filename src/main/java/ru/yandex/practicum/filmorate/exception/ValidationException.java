@@ -1,19 +1,15 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import java.util.List;
-
 public class ValidationException extends RuntimeException {
-    private List<String> errors;
 
-    public ValidationException(List<String> errors) {
-        this.errors = errors;
+    private final String parameter;
+
+    public ValidationException(String parameter) {
+        this.parameter = parameter;
     }
 
-    public List<String> getErrors() {
-        return errors;
-    }
-
-    public ValidationException(String message) {
-        super(message);
+    public String getParameter() {
+        return parameter;
     }
 }
+
