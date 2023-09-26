@@ -30,7 +30,13 @@ FROM Film f
 ```
 :ballot_box_with_check: Получение топ-10 фильмов
 ```
-SELECT f.film_id, f.name, f.description, f.releaseDate, f.duration, f.rating_id, COUNT(l.user_id) AS likes_count
+SELECT f.film_id, 
+       f.name, 
+       f.description, 
+       f.releaseDate, 
+       f.duration, 
+       f.rating_id, 
+       COUNT(l.user_id) AS likes_count
 FROM Film AS f
 LEFT JOIN Likes AS l ON f.film_id = l.film_id
 GROUP BY f.film_id
