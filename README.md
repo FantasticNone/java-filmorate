@@ -1,2 +1,2 @@
 # java-filmorate
-Template repository for Filmorate project.
+![](https://github.com/FantasticNone/java-filmorate/blob/add-database/ERD.jpeg)
