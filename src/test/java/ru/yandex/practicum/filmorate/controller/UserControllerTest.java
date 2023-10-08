@@ -1,12 +1,13 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+
 
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Set;
 
 class UserControllerTest {
@@ -24,16 +26,20 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userController = new UserController(new UserService(new InMemoryUserStorage()));
-        userController.getAllUsers();
+        ValidatorFactory valid = Validation.buildDefaultValidatorFactory();
 
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        validator = valid.getValidator();
     }
 
     @Test
     void createUser_InvalidEmail_ReturnsBadRequest() {
-
-        User user = new User("", "test", "test", LocalDate.of(2000, 1, 1));
+        User user = User.builder()
+                .email("")
+                .login("test")
+                .name("test")
+                .birthday(LocalDate.of(2000, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
 
@@ -46,7 +52,12 @@ class UserControllerTest {
 
     @Test
     void createUser_InvalidLogin_ReturnsBadRequest() {
-        User user = new User("test@example.com", "test test", "test", LocalDate.of(2000, 1, 1));
+        User user = User.builder()
+                .email("test@example.com")
+                .login("test test")
+                .name("test")
+                .birthday(LocalDate.of(2000, 1, 1))
+                .build();
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
 
@@ -60,11 +71,12 @@ class UserControllerTest {
     @Test
     void createUser_ValidUser_ReturnsOk() {
 
-        User user = new User();
-        user.setEmail("test@example.com");
-        user.setLogin("test");
-        user.setName("test");
-        user.setBirthday(LocalDate.of(2000, 1, 1));
+        User user = User.builder()
+                .email("test@example.com")
+                .login("test")
+                .name("test")
+                .birthday(LocalDate.of(2000, 1, 1))
+                .build();
 
         try {
             User createdUser = userController.createUser(user);

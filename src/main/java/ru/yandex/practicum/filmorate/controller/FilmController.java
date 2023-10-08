@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -38,8 +40,8 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToFilm(
-            @PathVariable long id,
-            @PathVariable long userId
+            @PathVariable int id,
+            @PathVariable int userId
     ) {
         log.info("Добавление лайка к фильму: filmId={}, likeId={}", id, userId);
         filmService.addLike(id, userId);
@@ -53,7 +55,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable long id) {
+    public Film getFilmById(@PathVariable int id) {
 
         log.info("Получение фильма по id: {}", id);
         return filmService.getFilmById(id);
@@ -68,7 +70,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFilm(@PathVariable long id) {
+    public void deleteFilm(@PathVariable int id) {
 
         log.info("Удален фильм с id: {}", id);
         filmService.deleteFilm(id);
@@ -76,10 +78,30 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLikeFromFilm(
-            @PathVariable long id,
-            @PathVariable long userId
+            @PathVariable int id,
+            @PathVariable int userId
     ) {
         log.info("Удаление лайка у фильма: filmId={}, likeId={}", id, userId);
         filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/genres")
+    public List<Genre> getAllGenres() {
+        return filmService.getAllGenres();
+    }
+
+    @GetMapping("/genres/{id}")
+    public Genre getGenreById(@PathVariable int id) {
+        return filmService.getGenreById(id);
+    }
+
+    @GetMapping("/mpa")
+    public List<MPA> getAllRatings() {
+        return filmService.getAllMPA();
+    }
+
+    @GetMapping("/mpa/{id}")
+    public MPA getRatingById(@PathVariable int id) {
+        return filmService.getMPAById(id);
     }
 }

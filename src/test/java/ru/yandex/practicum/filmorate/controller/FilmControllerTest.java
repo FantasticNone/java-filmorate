@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,11 +6,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.dao.FilmDbStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.Set;
 import java.time.LocalDate;
 
@@ -23,22 +24,22 @@ public class FilmControllerTest {
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage()));
-        filmController.getAllFilms();
+        ValidatorFactory valid = Validation.buildDefaultValidatorFactory();
 
 
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
+        validator = valid.getValidator();
 
     }
 
     @Test
     void addFilm_EmptyName_ReturnsBadRequest() {
 
-        Film film = new Film();
-        film.setName("");
-        film.setDescription("Test description");
-        film.setReleaseDate(LocalDate.of(2021, 1, 1));
-        film.setDuration(120);
+        Film film = Film.builder()
+                .name("")
+                .description("Test description")
+                .releaseDate(LocalDate.of(2021, 1, 1))
+                .duration(120)
+                .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -52,13 +53,14 @@ public class FilmControllerTest {
     @Test
     void addFilm_LongDescription_ReturnsBadRequest() {
 
-        Film film = new Film();
-        film.setName("Test film");
-        film.setDescription("Random text random text random text random text random text random text random " +
-                "text random text random text random text random text random text random text random text " +
-                "random text random text random text.");
-        film.setReleaseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(120);
+        Film film = Film.builder()
+                .name("Test film")
+                .description("Random text random text random text random text random text random text random " +
+                        "text random text random text random text random text random text random text random text " +
+                        "random text random text random text.")
+                .releaseDate(LocalDate.of(2023, 1, 1))
+                .duration(120)
+                .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -71,11 +73,12 @@ public class FilmControllerTest {
     @Test
     void addFilm_PreReleaseDate_ReturnsBadRequest() {
 
-        Film film = new Film();
-        film.setName("Test film");
-        film.setDescription("Test description");
-        film.setReleaseDate(LocalDate.of(1895, 12, 27));
-        film.setDuration(120);
+        Film film = Film.builder()
+                .name("Test film")
+                .description("Test description")
+                .releaseDate(LocalDate.of(1895, 12, 27))
+                .duration(120)
+                .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -88,11 +91,12 @@ public class FilmControllerTest {
     @Test
     void addFilm_NegativeDuration_ReturnsBadRequest() {
 
-        Film film = new Film();
-        film.setName("Test film");
-        film.setDescription("Test description");
-        film.setReleaseDate(LocalDate.of(2023, 1, 1));
-        film.setDuration(0);
+        Film film = Film.builder()
+                .name("Test film")
+                .description("Test description")
+                .releaseDate(LocalDate.of(2023, 1, 1))
+                .duration(0)
+                .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
 
@@ -105,11 +109,12 @@ public class FilmControllerTest {
     @Test
     void addFilm_ValidFilm_ReturnsOk() {
 
-        Film film = new Film();
-        film.setName("Test film");
-        film.setDescription("Test description");
-        film.setReleaseDate(LocalDate.of(2021, 1, 1));
-        film.setDuration(120);
+        Film film = Film.builder()
+                .name("Test film")
+                .description("Test description")
+                .releaseDate(LocalDate.of(2021, 1, 1))
+                .duration(120)
+                .build();
 
         try {
             Film addedFilm = filmController.addFilm(film);
