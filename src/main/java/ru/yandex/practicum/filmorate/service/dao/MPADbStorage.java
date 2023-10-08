@@ -27,6 +27,9 @@ public class MPADbStorage implements MPAStorage {
 
     @Override
     public MPA getMPAById(int id) {
+        if (!existsId(id)) {
+            throw new NotFoundException("MPA с ID " + id + " не найден.");
+        }
         String sql = "SELECT * FROM mpa WHERE mpa_id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, this::rowMapperForRating);
     }
@@ -37,5 +40,11 @@ public class MPADbStorage implements MPAStorage {
                 .id(rs.getInt("mpa_id"))
                 .name(rs.getString("mpa_name"))
                 .build();
+    }
+
+    public boolean existsId(int id) {
+        String sql = "SELECT COUNT(*) FROM mpa WHERE mpa_id = ?";
+        int count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
+        return count > 0;
     }
 }

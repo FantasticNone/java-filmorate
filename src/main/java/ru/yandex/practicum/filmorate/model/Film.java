@@ -36,10 +36,14 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
 
-    private final List<Genre> genres;
+    private List<Genre> genres;
 
     private final MPA mpa;
 
     private int likes;
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
 }
 
