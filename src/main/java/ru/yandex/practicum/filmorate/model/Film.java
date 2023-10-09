@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -42,8 +43,5 @@ public class Film {
 
     private int likes;
 
-    public void setGenres(List<Genre> genres) {
-        this.genres = genres;
-    }
 }
 

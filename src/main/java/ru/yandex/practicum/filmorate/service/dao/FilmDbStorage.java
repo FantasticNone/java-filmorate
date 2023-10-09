@@ -85,12 +85,24 @@ public class FilmDbStorage implements FilmStorage {
                 "group by f.film_id ";
 
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, new Object[]{filmId}, this::rowMapperForFilm));
+            Optional<Film> optionalFilm = Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, new Object[]{filmId}, this::rowMapperForFilm));
+
+            if (optionalFilm.isPresent()) {
+                Film film = optionalFilm.get();
+
+                if (film.getGenres() != null && film.getGenres().size() > 0) {
+                    List<Genre> genres = getGenresByFilmId(filmId);
+                    film.setGenres(genres);
+                }
+            }
+
+            return optionalFilm;
         } catch (EmptyResultDataAccessException exc) {
             log.debug("Film id - {} not found", filmId);
             throw new NotFoundException("Film not found");
         }
     }
+
     @Override
     public Film updateFilm(Film film) {
         if (!isFilmExist(film.getId())) {
@@ -109,9 +121,81 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId()
         );
+        if (film.getGenres() != null && film.getGenres().size() > 0) {
+            updateGenres(film);
+        }
 
         return film;
     }
+
+
+
+
+    private Film rowMapperForFilm(ResultSet rs, int rowNum) throws SQLException {
+        MPA rating = MPA.builder()
+                .id(rs.getInt("mpa_id"))
+                .name(rs.getString("mpa_name"))
+                .build();
+
+        int filmId = rs.getInt("film_id");
+        List<Genre> genres = getGenresByFilmId(filmId);
+
+        return Film.builder()
+                .id(rs.getInt("film_id"))
+                .name(rs.getString("name"))
+                .description(rs.getString("description"))
+                .releaseDate(rs.getDate("release_date").toLocalDate())
+                .duration(rs.getInt("duration"))
+                .mpa(rating)
+                .genres(genres)
+                .likes(rs.getInt("likes"))
+                .build();
+    }
+
+    public List<Genre> getGenresByFilmId(int filmId) {
+        String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
+                "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
+                "WHERE fg.film_id = ?";
+
+        List<Genre> genres = jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId);
+
+        return Objects.requireNonNullElseGet(genres, ArrayList::new);
+    }
+
+    private void updateGenres(Film film) {
+        int filmId = film.getId();
+        List<Genre> genres = film.getGenres().stream()
+                .distinct().collect(Collectors.toList());
+        String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        String sqlInsertQuery = "INSERT INTO film_genres (film_id, genre_id) " +
+                "VALUES (?, ?)";
+
+        jdbcTemplate.update(sqlDeleteQuery, filmId);
+
+        jdbcTemplate.batchUpdate(
+                sqlInsertQuery,
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        ps.setInt(1, filmId);
+                        ps.setInt(2, genres.get(i).getId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return genres.size();
+                    }
+                });
+    }
+
+    private Genre rowMapperForGenre(ResultSet rs,int rowNum) throws SQLException {
+        return Genre.builder()
+                .id(rs.getInt("genre_id"))
+                .name(rs.getString("genre_name"))
+                .build();
+    }
+
+
 
     @Override
     public void deleteFilm(int id) {
@@ -173,6 +257,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
+
+    private MPA rowMapperForRating(ResultSet rs, int rowNum) throws SQLException {
+        return MPA.builder()
+                .id(rs.getInt("mpa_id"))
+                .name(rs.getString("mpa_name"))
+                .build();
+    }
+
     @Override
     public void addLike(int filmId, int userId) {
         String sqlQuery = "INSERT INTO likes (film_id, user_id) " +
@@ -202,13 +294,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getTopLikedFilms(int count) {
         String sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
-                        "m.mpa_id, m.mpa_name, COUNT(l.user_id) AS likes " +
-                        "FROM films f " +
-                        "JOIN mpa m ON f.mpa_id = m.mpa_id " +
-                        "JOIN likes l ON f.film_id = l.film_id " +
-                        "GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.mpa_name " +
-                        "ORDER BY likes DESC " +
-                        "LIMIT ?;";
+                "m.mpa_id, m.mpa_name, COUNT(l.user_id) AS likes " +
+                "FROM films f " +
+                "JOIN mpa m ON f.mpa_id = m.mpa_id " +
+                "LEFT JOIN likes l ON f.film_id = l.film_id " +
+                "GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.mpa_name " +
+                "ORDER BY likes DESC " +
+                "LIMIT ?;";
 
         return jdbcTemplate.query(sqlQuery, this::rowMapperForFilm, count);
     }
@@ -227,74 +319,5 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId);
     }
 
-    private void updateGenres(Film film) {
-        int filmId = film.getId();
-        List<Genre> genres = film.getGenres().stream()
-                .distinct().collect(Collectors.toList());
-        String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
-        String sqlInsertQuery = "INSERT INTO film_genres (film_id, genre_id) " +
-                "VALUES (?, ?)";
 
-        jdbcTemplate.update(sqlDeleteQuery, filmId);
-
-        jdbcTemplate.batchUpdate(
-                sqlInsertQuery,
-                new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setInt(1, filmId);
-                        ps.setInt(2, genres.get(i).getId());
-                    }
-
-                    @Override
-                    public int getBatchSize() {
-                        return genres.size();
-                    }
-                });
-    }
-
-    private Film rowMapperForFilm(ResultSet rs, int rowNum) throws SQLException {
-        MPA rating = MPA.builder()
-                .id(rs.getInt("mpa_id"))
-                .name(rs.getString("mpa_name"))
-                .build();
-
-        int filmId = rs.getInt("film_id");
-        List<Genre> genres = getGenresByFilmId(filmId);
-
-        return Film.builder()
-                .id(rs.getInt("film_id"))
-                .name(rs.getString("name"))
-                .description(rs.getString("description"))
-                .releaseDate(rs.getDate("release_date").toLocalDate())
-                .duration(rs.getInt("duration"))
-                .mpa(rating)
-                .genres(genres)
-                .likes(rs.getInt("likes"))
-                .build();
-    }
-
-    public List<Genre> getGenresByFilmId(int filmId) {
-        String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
-                "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
-                "WHERE fg.film_id = ?";
-
-        List<Genre> genres = jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId);
-
-        return Objects.requireNonNullElseGet(genres, ArrayList::new);
-    }
-
-    private Genre rowMapperForGenre(ResultSet rs,int rowNum) throws SQLException {
-        return Genre.builder()
-                .id(rs.getInt("genre_id"))
-                .name(rs.getString("genre_name"))
-                .build();
-    }
-
-    private MPA rowMapperForRating(ResultSet rs, int rowNum) throws SQLException {
-        return MPA.builder()
-                .id(rs.getInt("mpa_id"))
-                .name(rs.getString("mpa_name"))
-                .build();
-    }
 }
