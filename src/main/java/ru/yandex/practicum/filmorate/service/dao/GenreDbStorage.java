@@ -26,27 +26,32 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> getAllGenres() {
         String sqlQuery = "SELECT genre_id, genre_name FROM genres";
 
-        List<Genre> genres = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rowMapperForGenre(rs));
+        List<Genre> genres = jdbcTemplate.query(sqlQuery, this::rowMapperForGenre);
 
         return Objects.requireNonNullElseGet(genres, ArrayList::new);
     }
 
     @Override
-    public Genre getGenreById(int id) {
+    public Genre getGenreById(int genreId) {
+        if (!isGenreExist(genreId)) {
+            throw new NotFoundException("Жанр с ID " + genreId + " не найден.");
+        }
         String sqlQuery = "SELECT genre_id, genre_name FROM genres WHERE genre_id = ?";
 
-        try {
-            return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> rowMapperForGenre(rs), id);
-        } catch (EmptyResultDataAccessException exc) {
-            log.debug("Genre id = {} не найден.", id);
-            throw new NotFoundException("Жанр не найден.");
-        }
+        return jdbcTemplate.queryForObject(sqlQuery, new Object[]{genreId}, this::rowMapperForGenre);
+
     }
 
-    private Genre rowMapperForGenre(ResultSet rs) throws SQLException {
+    private Genre rowMapperForGenre(ResultSet rs, int rowNum) throws SQLException {
         return Genre.builder()
                 .id(rs.getInt("genre_id"))
                 .name(rs.getString("genre_name"))
                 .build();
+    }
+
+    private boolean isGenreExist(int genreId) {
+        String sql = "SELECT COUNT(*) FROM genres WHERE genre_id = ?";
+        int count = jdbcTemplate.queryForObject(sql, new Object[]{genreId}, Integer.class);
+        return count > 0;
     }
 }

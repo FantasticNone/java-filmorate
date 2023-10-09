@@ -42,7 +42,7 @@ public class MPADbStorage implements MPAStorage {
                 .build();
     }
 
-    public boolean existsId(int id) {
+    private boolean existsId(int id) {
         String sql = "SELECT COUNT(*) FROM mpa WHERE mpa_id = ?";
         int count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
         return count > 0;

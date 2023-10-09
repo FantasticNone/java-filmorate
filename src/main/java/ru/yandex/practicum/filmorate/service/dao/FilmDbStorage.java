@@ -18,8 +18,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.MPAStorage;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +38,6 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    @Transactional
     public Film addFilm(Film film) {
         String sqlQuery =
                 "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
@@ -53,6 +54,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setInt(4, film.getDuration());
             ps.setInt(5, film.getMpa().getId());
             return ps;
+
         }, keyHolder);
 
         film.setId(keyHolder.getKey().intValue());
@@ -173,7 +175,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(int filmId, int userId) {
-        String sqlQuery = "INSERT INTO film_likes (film_id, user_id) " +
+        String sqlQuery = "INSERT INTO likes (film_id, user_id) " +
                 "VALUES (?, ?)";
 
         try {
@@ -185,7 +187,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeLike(int filmId, int userId) {
-        String sqlQuery = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
+        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
 
         int rowsAffected = jdbcTemplate.update(sqlQuery, filmId, userId);
 
@@ -199,13 +201,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopLikedFilms(int count) {
-        String sqlQuery =
-                "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, f.likes, " +
-                        "m.mpa_id, m.mpa_name " +
+        String sqlQuery = "SELECT f.film_id, f.name, f.description, f.release_date, f.duration, " +
+                        "m.mpa_id, m.mpa_name, COUNT(l.user_id) AS likes " +
                         "FROM films f " +
                         "JOIN mpa m ON f.mpa_id = m.mpa_id " +
-                        "ORDER BY f.likes DESC " +
-                        "LIMIT ?";
+                        "JOIN likes l ON f.film_id = l.film_id " +
+                        "GROUP BY f.film_id, f.name, f.description, f.release_date, f.duration, m.mpa_id, m.mpa_name " +
+                        "ORDER BY likes DESC " +
+                        "LIMIT ?;";
 
         return jdbcTemplate.query(sqlQuery, this::rowMapperForFilm, count);
     }
@@ -220,7 +223,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public int getLikesCount(int filmId) {
-        String sqlQuery = "SELECT COUNT(*) FROM film_likes WHERE film_id = ?";
+        String sqlQuery = "SELECT COUNT(*) FROM likes WHERE film_id = ?";
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId);
     }
 
