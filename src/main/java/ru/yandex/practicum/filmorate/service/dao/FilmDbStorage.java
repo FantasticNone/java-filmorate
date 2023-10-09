@@ -113,12 +113,17 @@ public class FilmDbStorage implements FilmStorage {
         );
         if (film.getGenres() != null && film.getGenres().size() > 0) {
             updateGenres(film);
+        } else {
+            deleteGenresByFilmId(film.getId());
         }
 
         return getFilmById(film.getId());
     }
 
-
+    private void deleteGenresByFilmId(int filmId) {
+        String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(sqlDeleteQuery, filmId);
+    }
 
 
     private Film rowMapperForFilm(ResultSet rs, int rowNum) throws SQLException {
