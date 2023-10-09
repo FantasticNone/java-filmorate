@@ -6,13 +6,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -24,8 +20,6 @@ import java.util.List;
 
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -68,7 +62,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> getFilmById(Integer filmId) {
+    public Film getFilmById(Integer filmId) {
 
         String sqlQuery = "select " +
                 "f.film_id, " +
@@ -85,18 +79,14 @@ public class FilmDbStorage implements FilmStorage {
                 "group by f.film_id ";
 
         try {
-            Optional<Film> optionalFilm = Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, new Object[]{filmId}, this::rowMapperForFilm));
+            Film film = jdbcTemplate.queryForObject(sqlQuery, new Object[]{filmId}, this::rowMapperForFilm);
 
-            if (optionalFilm.isPresent()) {
-                Film film = optionalFilm.get();
-
-                if (film.getGenres() != null && film.getGenres().size() > 0) {
-                    List<Genre> genres = getGenresByFilmId(filmId);
-                    film.setGenres(genres);
-                }
+            if (film.getGenres() != null && film.getGenres().size() > 0) {
+                List<Genre> genres = getGenresByFilmId(filmId);
+                film.setGenres(genres);
             }
 
-            return optionalFilm;
+            return film;
         } catch (EmptyResultDataAccessException exc) {
             log.debug("Film id - {} not found", filmId);
             throw new NotFoundException("Film not found");
@@ -125,7 +115,7 @@ public class FilmDbStorage implements FilmStorage {
             updateGenres(film);
         }
 
-        return film;
+        return getFilmById(film.getId());
     }
 
 

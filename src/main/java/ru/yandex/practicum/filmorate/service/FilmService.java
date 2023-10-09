@@ -70,8 +70,7 @@ public class FilmService {
 
 
     public Film getFilmById(Integer filmId) {
-        return filmStorage.getFilmById(filmId)
-                .orElseThrow(() -> new NotFoundException("Фильм по id: " + filmId + " не найден."));
+        return filmStorage.getFilmById(filmId);
     }
 
     private void checkFilmId(Integer filmId) {
