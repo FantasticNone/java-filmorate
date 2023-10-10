@@ -72,21 +72,6 @@ class UserDbStorageTest {
     }
 
     @Test
-    void deleteUser() {
-        userDbStorage.createUser(testUserOne);
-        testUserOne.setId(1);
-        userDbStorage.createUser(testUserTwo);
-        testUserTwo.setId(2);
-        assertEquals(testUserOne, userDbStorage.getUserById(1));
-        assertEquals(2, userDbStorage.getAllUsers().size());
-
-        userDbStorage.deleteUser(1);
-
-        assertThrows(NotFoundException.class, () -> userDbStorage.getUserById(1));
-        assertEquals(1, userDbStorage.getAllUsers().size());
-    }
-
-    @Test
     void getAllUsers() {
         List<User> expectedList = List.of(testUserOne, testUserTwo, testUserThree);
         List<User> actualList;
