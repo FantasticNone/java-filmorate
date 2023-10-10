@@ -1,13 +1,12 @@
-package ru.yandex.practicum.filmorate.service.dao;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.storage.MPAStorage;
+import ru.yandex.practicum.filmorate.dao.storage.MPAStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,7 +26,7 @@ public class MPADbStorage implements MPAStorage {
 
     @Override
     public MPA getMPAById(int id) {
-        if (!existsId(id)) {
+        if (!isMPAExist(id)) {
             throw new NotFoundException("MPA с ID " + id + " не найден.");
         }
         String sql = "SELECT * FROM mpa WHERE mpa_id = ?";
@@ -42,7 +41,7 @@ public class MPADbStorage implements MPAStorage {
                 .build();
     }
 
-    private boolean existsId(int id) {
+    private boolean isMPAExist(int id) {
         String sql = "SELECT COUNT(*) FROM mpa WHERE mpa_id = ?";
         int count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
         return count > 0;

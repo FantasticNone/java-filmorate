@@ -6,10 +6,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.MPAStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dao.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.dao.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.dao.storage.MPAStorage;
+import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
 
 import java.util.List;
 
@@ -34,6 +34,10 @@ public class FilmService {
         return filmStorage.addFilm(film);
     }
 
+    public Film getFilmById(Integer filmId) {
+        return filmStorage.getFilmById(filmId);
+    }
+
     public Film updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
@@ -49,7 +53,7 @@ public class FilmService {
     public Film addLike(Integer filmId, Integer userId) {
         checkFilmId(filmId);
         checkUserId(userId);
-        filmStorage.addLike(filmId,userId);
+        filmStorage.addLike(filmId, userId);
         return getFilmById(filmId);
     }
 
@@ -65,12 +69,6 @@ public class FilmService {
 
     public List<Film> getTopLikedFilms(int count) {
         return filmStorage.getTopLikedFilms(count);
-    }
-
-
-
-    public Film getFilmById(Integer filmId) {
-        return filmStorage.getFilmById(filmId);
     }
 
     private void checkFilmId(Integer filmId) {

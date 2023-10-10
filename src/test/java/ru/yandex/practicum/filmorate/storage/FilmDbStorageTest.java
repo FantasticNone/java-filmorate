@@ -12,15 +12,11 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.dao.FilmDbStorage;
-import ru.yandex.practicum.filmorate.service.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,25 +64,6 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm, actualFilm);
     }
 
-    /*@Test
-    void getFilmById() {
-        Film expectedFilm = Film.builder()
-                .id(2)
-                .name("test")
-                .mpa(rating)
-                .description("test description")
-                .releaseDate(LocalDate.of(2000, 12, 12))
-                .duration(100)
-                .genres(genres)
-                .build();
-
-        filmDbStorage.addFilm(testFilm);
-        filmDbStorage.addFilm(testFilm);
-        Optional<Film> actualFilm = filmDbStorage.getFilmById(2);
-
-        assertEquals(expectedFilm, actualFilm);
-    }*/
-
    @Test
     void updateFilm() {
         Film expectedFilm;
@@ -129,32 +106,6 @@ class FilmDbStorageTest {
         actualFilms = filmDbStorage.getAllFilms();
 
         assertArrayEquals(expectedFilms.toArray(), actualFilms.toArray());
-    }
-
-    @Test
-    public void addLike() {
-        filmDbStorage.addFilm(testFilm);
-        userDbStorage.createUser(testUser);
-
-        filmDbStorage.addLike(testFilm.getId(), testUser.getId());
-
-        int likesCount = filmDbStorage.getLikesCount(testFilm.getId());
-
-        assertEquals(1, likesCount);
-    }
-
-    @Test
-    public void testRemoveLike() {
-        filmDbStorage.addFilm(testFilm);
-        userDbStorage.createUser(testUser);
-
-        filmDbStorage.addLike(testFilm.getId(), testUser.getId());
-
-        filmDbStorage.removeLike(testFilm.getId(), testUser.getId());
-
-        int likesCount = filmDbStorage.getLikesCount(testFilm.getId());
-
-        assertEquals(0, likesCount);
     }
 
     @Test

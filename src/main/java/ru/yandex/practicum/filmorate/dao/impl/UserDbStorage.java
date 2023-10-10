@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service.dao;
+package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,17 +10,14 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -86,15 +83,14 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void deleteUser(int userId) {
         String sqlQuery = "DELETE FROM users WHERE user_id = ?";
+
         if (jdbcTemplate.update(sqlQuery, userId) == 1) {
-            log.info("Film id: " + userId + " deleted");
+            log.info("Пользователь по id: " + userId + " удален.");
         } else {
             log.debug("Пользователь по id {} не найден.", userId);
             throw new NotFoundException("Пользователь не найден.");
         }
     }
-
-
 
     @Override
     public List<User> getAllUsers() {
@@ -105,9 +101,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void addFriend(int userId, int friendId) {
-        Optional<User> user = getUserById(userId);
-        Optional<User> friend = getUserById(friendId);
-
         boolean callbackRequest = false;
 
         String sqlQueryGetStatus = "SELECT status FROM friends " +
@@ -134,9 +127,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void removeFriend(int userId, int friendId) {
-        Optional<User> user = getUserById(userId);
-        Optional<User> friend = getUserById(friendId);
-
         String sqlQuery = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
 
         jdbcTemplate.update(sqlQuery, userId, friendId);
@@ -154,25 +144,25 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(int userId, int friendId) {
-            String sqlQuery = "SELECT u.user_id, u.email, u.name, u.login, u.birthday " +
-                    "FROM users u " +
-                    "JOIN friends f1 ON u.user_id = f1.friend_id " +
-                    "JOIN friends f2 ON f1.friend_id = f2.friend_id " +
-                    "WHERE f1.user_id = ? " +
-                    "  AND f2.user_id = ?";
+        String sqlQuery = "SELECT u.user_id, u.email, u.name, u.login, u.birthday " +
+                "FROM users u " +
+                "JOIN friends f1 ON u.user_id = f1.friend_id " +
+                "JOIN friends f2 ON f1.friend_id = f2.friend_id " +
+                "WHERE f1.user_id = ? " +
+                "AND f2.user_id = ?";
 
-            return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, friendId);
-        }
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, friendId);
+    }
 
     @Override
     public boolean isUserExist(int id) {
-        String sql = "SELECT USER_ID FROM PUBLIC.USERS WHERE USER_ID = ?;";
+        String sql = "SELECT user_id FROM users WHERE user_id = ?;";
+
         SqlRowSet set = jdbcTemplate.queryForRowSet(sql, id);
         return set.next();
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
-
         return User.builder()
                 .id(resultSet.getInt("user_id"))
                 .email(resultSet.getString("email"))

@@ -4,15 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserStorage userStorage;
 
     public User createUser(User user) {
@@ -38,7 +37,7 @@ public class UserService {
         User friend = getUserById(friendId);
 
         if (user != null && friend != null) {
-            userStorage.addFriend(userId,friendId);
+            userStorage.addFriend(userId, friendId);
         }
     }
 
@@ -47,7 +46,7 @@ public class UserService {
         User friend = getUserById(friendId);
 
         if (user != null && friend != null) {
-            userStorage.removeFriend(userId,friendId);
+            userStorage.removeFriend(userId, friendId);
         }
     }
 
@@ -73,9 +72,5 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-    }
-
-    private Boolean isUserExist(Integer id) {
-        return userStorage.getUserById(id).isPresent();
     }
 }
