@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -71,12 +72,12 @@ class UserDbStorageTest {
     }
 
     @Test
-    void deleteUser(){
+    void deleteUser() {
         userDbStorage.createUser(testUserOne);
         testUserOne.setId(1);
         userDbStorage.createUser(testUserTwo);
         testUserTwo.setId(2);
-        assertEquals(testUserOne,userDbStorage.getUserById(1) );
+        assertEquals(testUserOne, userDbStorage.getUserById(1));
         assertEquals(2, userDbStorage.getAllUsers().size());
 
         userDbStorage.deleteUser(1);
