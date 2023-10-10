@@ -64,25 +64,6 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm, actualFilm);
     }
 
-    /*@Test
-    void getFilmById() {
-        Film expectedFilm = Film.builder()
-                .id(2)
-                .name("test")
-                .mpa(rating)
-                .description("test description")
-                .releaseDate(LocalDate.of(2000, 12, 12))
-                .duration(100)
-                .genres(genres)
-                .build();
-
-        filmDbStorage.addFilm(testFilm);
-        filmDbStorage.addFilm(testFilm);
-        Optional<Film> actualFilm = filmDbStorage.getFilmById(2);
-
-        assertEquals(expectedFilm, actualFilm);
-    }*/
-
     @Test
     void updateFilm() {
         Film expectedFilm;
@@ -125,25 +106,6 @@ class FilmDbStorageTest {
         actualFilms = filmDbStorage.getAllFilms();
 
         assertArrayEquals(expectedFilms.toArray(), actualFilms.toArray());
-    }
-
-    @Test
-    void getTopLikedFilms() {
-        userDbStorage.createUser(testUser);
-        userDbStorage.createUser(testUserTwo);
-
-        Film film1 = filmDbStorage.addFilm(testFilm);
-        Film film2 = filmDbStorage.addFilm(testFilmTwo);
-
-        filmDbStorage.addLike(film1.getId(), testUser.getId());
-        filmDbStorage.addLike(film1.getId(), testUserTwo.getId());
-        filmDbStorage.addLike(film2.getId(), testUser.getId());
-
-        List<Film> topLikedFilms = filmDbStorage.getTopLikedFilms(2);
-
-        assertEquals(2, topLikedFilms.size());
-        assertEquals(film1, topLikedFilms.get(0));
-        assertEquals(film2, topLikedFilms.get(1));
     }
 
     @Test

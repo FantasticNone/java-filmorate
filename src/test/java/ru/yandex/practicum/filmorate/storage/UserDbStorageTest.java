@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
 
@@ -147,5 +146,4 @@ class UserDbStorageTest {
                 .map(Optional::get)
                 .collect(Collectors.toList());
         assertIterableEquals(expectedFriendList, actualFriendListContent);*/
-
 }
