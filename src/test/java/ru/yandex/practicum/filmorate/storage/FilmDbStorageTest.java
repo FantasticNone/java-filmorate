@@ -64,7 +64,7 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm, actualFilm);
     }
 
-   @Test
+    @Test
     void updateFilm() {
         Film expectedFilm;
         Film actualFilm;
@@ -78,18 +78,18 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void removeFilm(){
+    void removeFilm() {
         filmDbStorage.addFilm(testFilm);
         testFilm.setId(1);
         filmDbStorage.addFilm(testFilmTwo);
         testFilmTwo.setId(2);
-        assertEquals(testFilm,filmDbStorage.getFilmById(1) );
+        assertEquals(testFilm, filmDbStorage.getFilmById(1));
         assertEquals(2, filmDbStorage.getAllFilms().size());
 
         filmDbStorage.deleteFilm(1);
 
         assertThrows(NotFoundException.class, () -> filmDbStorage.getFilmById(1));
-        assertEquals(1,filmDbStorage.getAllFilms().size());
+        assertEquals(1, filmDbStorage.getAllFilms().size());
     }
 
     @Test
