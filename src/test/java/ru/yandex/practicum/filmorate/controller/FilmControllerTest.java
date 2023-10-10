@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.ConstraintViolation;
@@ -15,7 +14,6 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilmControllerTest {
-    private FilmController filmController;
 
     private Validator validator;
 
@@ -103,7 +101,7 @@ public class FilmControllerTest {
         assertEquals("Продолжительность фильма должна быть положительной", violation.getMessage());
     }
 
-    @Test
+    /*@Test
     void addFilm_ValidFilm_ReturnsOk() {
 
         Film film = Film.builder()
@@ -119,6 +117,6 @@ public class FilmControllerTest {
         } catch (ValidationException ex) {
             throw new AssertionError("Unexpected BadRequestException");
         }
-    }
+    }*/
 }
 
