@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -72,12 +71,12 @@ class UserDbStorageTest {
     }
 
     @Test
-    void deleteUser() {
+    void deleteUser(){
         userDbStorage.createUser(testUserOne);
         testUserOne.setId(1);
         userDbStorage.createUser(testUserTwo);
         testUserTwo.setId(2);
-        assertEquals(testUserOne, userDbStorage.getUserById(1));
+        assertEquals(testUserOne,userDbStorage.getUserById(1) );
         assertEquals(2, userDbStorage.getAllUsers().size());
 
         userDbStorage.deleteUser(1);
@@ -143,4 +142,24 @@ class UserDbStorageTest {
 
         assertArrayEquals(expecteFriendList.toArray(), actualFriendList.toArray());
     }
+
+   /* @Test
+    void getCommonFriends() {
+        List<User> expectedFriendList = List.of(testUserTwo);
+        List<User> actualFriendList;
+
+        userDbStorage.createUser(testUserOne);
+        userDbStorage.createUser(testUserTwo);
+        userDbStorage.createUser(testUserThree);
+        userDbStorage.addFriend(testUserOne.getId(), testUserTwo.getId());
+        userDbStorage.addFriend(testUserThree.getId(), testUserTwo.getId());
+        actualFriendList = userDbStorage.getCommonFriends(testUserOne.getId(), testUserThree.getId());
+
+        assertEquals(expectedFriendList.size(), actualFriendList.size());
+        assertTrue(actualFriendList.stream().allMatch(Optional::isPresent));
+        List<User> actualFriendListContent = actualFriendList.stream()
+                .map(Optional::get)
+                .collect(Collectors.toList());
+        assertIterableEquals(expectedFriendList, actualFriendListContent);*/
+
 }

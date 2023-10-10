@@ -64,7 +64,26 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm, actualFilm);
     }
 
-    @Test
+    /*@Test
+    void getFilmById() {
+        Film expectedFilm = Film.builder()
+                .id(2)
+                .name("test")
+                .mpa(rating)
+                .description("test description")
+                .releaseDate(LocalDate.of(2000, 12, 12))
+                .duration(100)
+                .genres(genres)
+                .build();
+
+        filmDbStorage.addFilm(testFilm);
+        filmDbStorage.addFilm(testFilm);
+        Optional<Film> actualFilm = filmDbStorage.getFilmById(2);
+
+        assertEquals(expectedFilm, actualFilm);
+    }*/
+
+   @Test
     void updateFilm() {
         Film expectedFilm;
         Film actualFilm;
@@ -78,18 +97,18 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void removeFilm() {
+    void removeFilm(){
         filmDbStorage.addFilm(testFilm);
         testFilm.setId(1);
         filmDbStorage.addFilm(testFilmTwo);
         testFilmTwo.setId(2);
-        assertEquals(testFilm, filmDbStorage.getFilmById(1));
+        assertEquals(testFilm,filmDbStorage.getFilmById(1) );
         assertEquals(2, filmDbStorage.getAllFilms().size());
 
         filmDbStorage.deleteFilm(1);
 
         assertThrows(NotFoundException.class, () -> filmDbStorage.getFilmById(1));
-        assertEquals(1, filmDbStorage.getAllFilms().size());
+        assertEquals(1,filmDbStorage.getAllFilms().size());
     }
 
     @Test
