@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.dao.impl.FriendDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
 
@@ -21,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserDbStorageTest {
     private final UserDbStorage userDbStorage;
+
+    private final FriendDbStorage friendDbStorage;
 
     User testUserOne;
     User testUserTwo;
@@ -91,8 +94,8 @@ class UserDbStorageTest {
         userDbStorage.createUser(testUserOne);
         userDbStorage.createUser(testUserTwo);
         userDbStorage.createUser(testUserThree);
-        userDbStorage.addFriend(1, 3);
-        actualUser = userDbStorage.getFriends(1).get(0);
+        friendDbStorage.addFriend(1, 3);
+        actualUser = friendDbStorage.getFriends(1).get(0);
 
         assertEquals(expecteUser, actualUser);
     }
@@ -105,10 +108,10 @@ class UserDbStorageTest {
         userDbStorage.createUser(testUserOne);
         userDbStorage.createUser(testUserTwo);
         userDbStorage.createUser(testUserThree);
-        userDbStorage.addFriend(1, 2);
-        userDbStorage.addFriend(1, 3);
-        userDbStorage.removeFriend(1, 3);
-        actualFriendList = userDbStorage.getFriends(1);
+        friendDbStorage.addFriend(1, 2);
+        friendDbStorage.addFriend(1, 3);
+        friendDbStorage.removeFriend(1, 3);
+        actualFriendList = friendDbStorage.getFriends(1);
 
         assertTrue(expecteFriendList.size() == actualFriendList.size());
     }
@@ -121,9 +124,9 @@ class UserDbStorageTest {
         userDbStorage.createUser(testUserOne);
         userDbStorage.createUser(testUserTwo);
         userDbStorage.createUser(testUserThree);
-        userDbStorage.addFriend(1, 2);
-        userDbStorage.addFriend(1, 3);
-        actualFriendList = userDbStorage.getFriends(1);
+        friendDbStorage.addFriend(1, 2);
+        friendDbStorage.addFriend(1, 3);
+        actualFriendList = friendDbStorage.getFriends(1);
 
         assertArrayEquals(expecteFriendList.toArray(), actualFriendList.toArray());
     }

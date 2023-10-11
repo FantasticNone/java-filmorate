@@ -16,6 +16,8 @@ import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.dao.impl.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,10 +28,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
-    private final UserDbStorage userDbStorage;
 
     MPA rating;
-    List<Genre> genres;
+    LinkedHashSet<Genre> genres;
     Film testFilm;
     Film testFilmTwo;
     User testUser;
@@ -38,8 +39,9 @@ class FilmDbStorageTest {
     @BeforeEach
     public void initObjects() {
         rating = MPA.builder().id(5).name("NC-17").build();
-        genres = List.of(Genre.builder().id(5).name("Документальный").build(),
-                Genre.builder().id(6).name("Боевик").build());
+        genres = new LinkedHashSet<>(Arrays.asList(
+                Genre.builder().id(5).name("Документальный").build(),
+                Genre.builder().id(6).name("Боевик").build()));
         testFilm = Film.builder().name("test").mpa(rating).description("test description")
                 .releaseDate(LocalDate.of(2000, 12, 12)).duration(100).genres(genres)
                 .build();

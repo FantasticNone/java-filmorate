@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -36,7 +35,6 @@ public class FilmDbStorage implements FilmStorage {
     public Film addFilm(Film film) {
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
-        String sqlGenresQuery = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -54,8 +52,7 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(keyHolder.getKey().intValue());
 
         if (film.getGenres() != null) {
-            film.getGenres()
-                    .forEach(genre -> jdbcTemplate.update(sqlGenresQuery, film.getId(), genre.getId()));
+            updateGenres(film);
         } else {
             log.debug("Жанры отсутствуют.");
         }
@@ -83,8 +80,7 @@ public class FilmDbStorage implements FilmStorage {
             Film film = jdbcTemplate.queryForObject(sqlQuery, new Object[]{filmId}, this::rowMapperForFilm);
 
             if (film.getGenres() != null && film.getGenres().size() > 0) {
-                List<Genre> genres = getGenresByFilmId(filmId);
-                film.setGenres(genres);
+                updateGenres(film);
             }
 
             return film;
@@ -154,7 +150,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.query(sqlQuery, (rs, rowNum) -> {
             int filmId = rs.getInt("film_id");
             Film film = films.get(filmId);
-            Genre genre = rowMapperForGenre(rs, rowNum);
+            LinkedHashSet<Genre> genres = getGenresByFilmId(filmId);
 
             if (film == null) {
                 film = Film.builder()
@@ -164,15 +160,12 @@ public class FilmDbStorage implements FilmStorage {
                         .releaseDate(rs.getDate("release_date").toLocalDate())
                         .duration(rs.getInt("duration"))
                         .mpa(rowMapperForRating(rs))
-                        .genres(new ArrayList<>())
+                        .genres(genres)
                         .likes(rs.getInt("likes"))
                         .build();
 
                 films.put(filmId, film);
             }
-
-            if (genre.getId() != 0 && genre.getName() != null)
-                film.getGenres().add(genre);
 
             return film;
         });
@@ -238,7 +231,7 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
 
         int filmId = rs.getInt("film_id");
-        List<Genre> genres = getGenresByFilmId(filmId);
+        LinkedHashSet<Genre> genres = getGenresByFilmId(filmId);
 
         return Film.builder()
                 .id(rs.getInt("film_id"))
@@ -266,14 +259,12 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
     }
 
-    private List<Genre> getGenresByFilmId(int filmId) {
+    private LinkedHashSet<Genre> getGenresByFilmId(int filmId) {
         String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
                 "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
                 "WHERE fg.film_id = ?";
 
-        List<Genre> genres = jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId);
-
-        return Objects.requireNonNullElseGet(genres, ArrayList::new);
+        return new LinkedHashSet<>(jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId));
     }
 
     private void deleteGenresByFilmId(int filmId) {
@@ -283,27 +274,15 @@ public class FilmDbStorage implements FilmStorage {
 
     private void updateGenres(Film film) {
         int filmId = film.getId();
-        List<Genre> genres = film.getGenres().stream()
-                .distinct().collect(Collectors.toList());
+        LinkedHashSet<Genre> genres = film.getGenres();
         String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(sqlDeleteQuery, filmId);
+
         String sqlInsertQuery = "INSERT INTO film_genres (film_id, genre_id) " +
                 "VALUES (?, ?)";
 
-        jdbcTemplate.update(sqlDeleteQuery, filmId);
-
-        jdbcTemplate.batchUpdate(
-                sqlInsertQuery,
-                new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setInt(1, filmId);
-                        ps.setInt(2, genres.get(i).getId());
-                    }
-
-                    @Override
-                    public int getBatchSize() {
-                        return genres.size();
-                    }
-                });
+        for (Genre genre : genres) {
+            jdbcTemplate.update(sqlInsertQuery, filmId, genre.getId());
+        }
     }
 }

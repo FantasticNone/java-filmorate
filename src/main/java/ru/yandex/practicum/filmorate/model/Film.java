@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.LinkedHashSet;
 
 @Data
 @Builder
@@ -30,10 +30,11 @@ public class Film {
     @MinimumDate(message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
 
+    @NotNull
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     private Integer duration;
 
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;
 
     private final MPA mpa;
 

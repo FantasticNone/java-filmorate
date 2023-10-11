@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
@@ -13,6 +14,8 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
+
+    private final FriendStorage friendStorage;
 
     public User createUser(User user) {
         setNameIfEmpty(user);
@@ -37,7 +40,7 @@ public class UserService {
         User friend = getUserById(friendId);
 
         if (user != null && friend != null) {
-            userStorage.addFriend(userId, friendId);
+            friendStorage.addFriend(userId, friendId);
         }
     }
 
@@ -46,7 +49,7 @@ public class UserService {
         User friend = getUserById(friendId);
 
         if (user != null && friend != null) {
-            userStorage.removeFriend(userId, friendId);
+            friendStorage.removeFriend(userId, friendId);
         }
     }
 
@@ -58,14 +61,14 @@ public class UserService {
     public List<User> getFriends(Integer userId) throws NotFoundException {
         User user = getUserById(userId);
         if (user != null) {
-            return userStorage.getFriends(userId);
+            return friendStorage.getFriends(userId);
         } else {
             throw new NotFoundException("Пользователь по id: " + userId + " не найден.");
         }
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        return userStorage.getCommonFriends(id, otherId);
+        return friendStorage.getCommonFriends(id, otherId);
     }
 
     private void setNameIfEmpty(User user) {

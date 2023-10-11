@@ -66,8 +66,7 @@ CREATE TABLE IF NOT EXISTS PUBLIC.LIKES (
 CREATE TABLE IF NOT EXISTS PUBLIC.FRIENDS (
                                                    USER_ID INT NOT NULL,
                                                    FRIEND_ID INT NOT NULL,
-                                                   STATUS BOOLEAN NOT NULL,
-                                                   PRIMARY KEY (USER_ID, FRIEND_ID, STATUS),
+                                                   PRIMARY KEY (USER_ID, FRIEND_ID),
                                                    CONSTRAINT FK_USER
                                                    FOREIGN KEY (USER_ID) REFERENCES PUBLIC.USERS(USER_ID)
                                                         ON DELETE CASCADE,

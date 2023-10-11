@@ -99,60 +99,6 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
-    @Override
-    public void addFriend(int userId, int friendId) {
-        boolean callbackRequest = false;
-
-        String sqlQueryGetStatus = "SELECT status FROM friends " +
-                "WHERE user_id = ? AND friend_id = ?";
-        String sqlQueryInsertRequest = "INSERT INTO friends (user_id, friend_id, status) " +
-                "VALUES (?, ?, ?)";
-        String sqlQueryUpdateRequest = "UPDATE friends SET status = true " +
-                "WHERE user_id = ? AND friend_id = ?";
-
-        try {
-            callbackRequest = Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQueryGetStatus, boolean.class,
-                    friendId, userId));
-        } catch (EmptyResultDataAccessException exc) {
-            log.debug("Встречный запрос от пользователя {} отсутствует", userId);
-        }
-
-        if (callbackRequest) {
-            jdbcTemplate.update(sqlQueryUpdateRequest, userId, friendId);
-            jdbcTemplate.update(sqlQueryUpdateRequest, friendId, userId);
-        } else {
-            jdbcTemplate.update(sqlQueryInsertRequest, userId, friendId, false);
-        }
-    }
-
-    @Override
-    public void removeFriend(int userId, int friendId) {
-        String sqlQuery = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
-
-        jdbcTemplate.update(sqlQuery, userId, friendId);
-    }
-
-    @Override
-    public List<User> getFriends(int userId) {
-        String sqlQuery = "SELECT u.user_id, u.email, u.name, u.login, u.birthday " +
-                "FROM users u " +
-                "JOIN friends f ON f.friend_id = u.user_id " +
-                "WHERE f.user_id = ?";
-
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId);
-    }
-
-    @Override
-    public List<User> getCommonFriends(int userId, int friendId) {
-        String sqlQuery = "SELECT u.user_id, u.email, u.name, u.login, u.birthday " +
-                "FROM users u " +
-                "JOIN friends f1 ON u.user_id = f1.friend_id " +
-                "JOIN friends f2 ON f1.friend_id = f2.friend_id " +
-                "WHERE f1.user_id = ? " +
-                "AND f2.user_id = ?";
-
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, friendId);
-    }
 
     @Override
     public boolean isUserExist(int id) {
