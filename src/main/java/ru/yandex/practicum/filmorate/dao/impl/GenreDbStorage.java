@@ -52,6 +52,30 @@ public class GenreDbStorage implements GenreStorage {
         return count > 0;
     }
 
+    public void addGenresToFilms(Map<Integer, Film> filmsMap) {
+        Collection<Integer> films = filmsMap.keySet();
+        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+
+        String sqlQuery = "SELECT fg.film_id, g.genre_id, g.genre_name "
+                + "FROM film_genres fg "
+                + "JOIN genres g ON fg.genre_id = g.genre_id "
+                + "WHERE fg.film_id IN (" + inSql + ")";
+
+        jdbcTemplate.query(sqlQuery,(rs,rowNum) -> {
+            while(rs.next()) {
+                    int filmId = rs.getInt("film_id");
+                    int genreId = rs.getInt("genre_id");
+                    String genreName = rs.getString("genre_name");
+                    Film film = filmsMap.get(filmId);
+                    Genre genre = Genre.builder().id(genreId).name(genreName).build();
+                    film.getGenres().add(genre);
+                    film.setGenres(new LinkedHashSet<>(film.getGenres()));
+                }
+                    return filmsMap;
+                }, films);
+    }
+
+
     protected LinkedHashSet<Genre> getGenresByFilmId(int filmId) {
         String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
                 "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
