@@ -33,6 +33,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private final GenreDbStorage genreDbStorage;
 
+
     @Override
     public Film addFilm(Film film) {
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
@@ -159,6 +160,7 @@ public class FilmDbStorage implements FilmStorage {
                         .releaseDate(rs.getDate("release_date").toLocalDate())
                         .duration(rs.getInt("duration"))
                         .mpa(rowMapperForRating(rs))
+                        .genres(new LinkedHashSet<>())
                         .likes(rs.getInt("likes"))
                         .build();
 
@@ -170,8 +172,7 @@ public class FilmDbStorage implements FilmStorage {
 
         genreDbStorage.addGenresToFilms(films);
 
-        return films.values().stream()
-                .collect(Collectors.toList());
+        return new ArrayList<>(films.values());
     }
 
     @Override

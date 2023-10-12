@@ -3,6 +3,10 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,6 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
     @Override
     public List<Genre> getAllGenres() {
@@ -53,26 +58,25 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     public void addGenresToFilms(Map<Integer, Film> filmsMap) {
-        Collection<Integer> films = filmsMap.keySet();
-        String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        Collection<Integer> filmIdList = filmsMap.keySet();
 
         String sqlQuery = "SELECT fg.film_id, g.genre_id, g.genre_name "
                 + "FROM film_genres fg "
                 + "JOIN genres g ON fg.genre_id = g.genre_id "
-                + "WHERE fg.film_id IN (" + inSql + ")";
+                + "WHERE fg.film_id IN (:filmIdList)";
 
-        jdbcTemplate.query(sqlQuery,(rs,rowNum) -> {
-            while(rs.next()) {
-                    int filmId = rs.getInt("film_id");
-                    int genreId = rs.getInt("genre_id");
-                    String genreName = rs.getString("genre_name");
-                    Film film = filmsMap.get(filmId);
-                    Genre genre = Genre.builder().id(genreId).name(genreName).build();
-                    film.getGenres().add(genre);
-                    film.setGenres(new LinkedHashSet<>(film.getGenres()));
-                }
-                    return filmsMap;
-                }, films);
+        SqlParameterSource parameters = new MapSqlParameterSource("filmIdList",filmIdList);
+
+        namedJdbcTemplate.query(sqlQuery,parameters, rs -> {
+                    Film film = filmsMap.get(rs.getInt("filmId"));
+                    LinkedHashSet<Genre> genres = film.getGenres();
+                    genres.add(Genre.builder()
+                            .id(rs.getInt("genre_id"))
+                            .name(rs.getString("genre_name"))
+                            .build());
+                    film.setGenres(genres);
+                    filmsMap.put(film.getId(),film);
+                });
     }
 
 
