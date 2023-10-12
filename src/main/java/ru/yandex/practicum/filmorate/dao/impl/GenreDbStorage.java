@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -68,7 +67,7 @@ public class GenreDbStorage implements GenreStorage {
         SqlParameterSource parameters = new MapSqlParameterSource("filmIdList",filmIdList);
 
         namedJdbcTemplate.query(sqlQuery,parameters, rs -> {
-                    Film film = filmsMap.get(rs.getInt("filmId"));
+                    Film film = filmsMap.get(rs.getInt("film_id"));
                     LinkedHashSet<Genre> genres = film.getGenres();
                     genres.add(Genre.builder()
                             .id(rs.getInt("genre_id"))
