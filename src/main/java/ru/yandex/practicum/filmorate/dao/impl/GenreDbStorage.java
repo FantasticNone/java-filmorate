@@ -3,8 +3,6 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -54,26 +52,12 @@ public class GenreDbStorage implements GenreStorage {
         return count > 0;
     }
 
-    protected Map<Long, LinkedHashSet<Genre>> getGenresByFilmIds(Collection<Long> filmIds) {
-        String sqlQuery = "SELECT fg.film_id, g.genre_id, g.genre_name FROM genres g " +
+    protected LinkedHashSet<Genre> getGenresByFilmId(int filmId) {
+        String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
                 "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
-                "WHERE fg.film_id IN (:filmIds)";
+                "WHERE fg.film_id = ?";
 
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("filmIds", filmIds);
-
-        Map<Long, LinkedHashSet<Genre>> genresByFilmId = new HashMap<>();
-
-        jdbcTemplate.query(sqlQuery, parameters, (RowCallbackHandler) rs -> {
-            long filmId = rs.getLong("film_id");
-            Genre genre = rowMapperForGenre(rs);
-
-            LinkedHashSet<Genre> genres = genresByFilmId.getOrDefault(filmId, new LinkedHashSet<>());
-            genres.add(genre);
-            genresByFilmId.put(filmId, genres);
-        });
-
-        return genresByFilmId;
+        return new LinkedHashSet<>(jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId));
     }
 
     protected void deleteGenresByFilmId(int filmId) {

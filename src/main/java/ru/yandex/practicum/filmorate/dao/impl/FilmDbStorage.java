@@ -150,7 +150,7 @@ public class FilmDbStorage implements FilmStorage {
         jdbcTemplate.query(sqlQuery, (rs, rowNum) -> {
             int filmId = rs.getInt("film_id");
             Film film = films.get(filmId);
-            LinkedHashSet<Genre> genres = genreDbStorage.getGenresByFilmIds(filmId);
+            LinkedHashSet<Genre> genres = genreDbStorage.getGenresByFilmId(filmId);
 
             if (film == null) {
                 film = Film.builder()
@@ -168,18 +168,6 @@ public class FilmDbStorage implements FilmStorage {
             }
 
             return film;
-        });
-
-        List<Integer> filmIds = films.values().stream()
-                .map(Film::getId)
-                .collect(Collectors.toList());
-
-        Map<Long, LinkedHashSet<Genre>> genresByFilmId = genreDbStorage.getGenresByFilmIds(filmIds);
-
-        films.values().forEach(film -> {
-            long filmId = film.getId();
-            LinkedHashSet<Genre> genres = genresByFilmId.getOrDefault(filmId, new LinkedHashSet<>());
-            film.setGenres(genres);
         });
 
         return films.values().stream()
