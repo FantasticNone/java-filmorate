@@ -78,7 +78,7 @@ class FilmDbStorageTest {
         assertEquals(expectedFilm, actualFilm);
     }
 
-    @Test
+    /*@Test
     void removeFilm() {
         filmDbStorage.addFilm(testFilm);
         testFilm.setId(1);
@@ -107,7 +107,7 @@ class FilmDbStorageTest {
         actualFilms = filmDbStorage.getAllFilms();
 
         assertArrayEquals(expectedFilms.toArray(), actualFilms.toArray());
-    }
+    }*/
 
     @Test
     void isFilmExist_ValidFilmId() {

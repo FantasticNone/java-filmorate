@@ -17,11 +17,15 @@ public class MpaController {
 
     @GetMapping("/mpa")
     public List<MPA> getAllRatings() {
+
+        log.info("Получение рейтингов.");
         return filmService.getAllMPA();
     }
 
     @GetMapping("/mpa/{id}")
     public MPA getRatingById(@PathVariable int id) {
+
+        log.info("Получение рейтинга по id: {}", id);
         return filmService.getMPAById(id);
     }
 }

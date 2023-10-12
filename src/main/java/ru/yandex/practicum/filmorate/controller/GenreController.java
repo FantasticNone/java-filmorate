@@ -17,11 +17,15 @@ public class GenreController {
 
     @GetMapping("/genres")
     public List<Genre> getAllGenres() {
+
+        log.info("Получение всех жанров.");
         return filmService.getAllGenres();
     }
 
     @GetMapping("/genres/{id}")
     public Genre getGenreById(@PathVariable int id) {
+
+        log.info("Получение жанра по id: {}", id);
         return filmService.getGenreById(id);
     }
 }

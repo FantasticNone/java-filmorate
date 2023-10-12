@@ -3,8 +3,11 @@ package ru.yandex.practicum.filmorate.dao.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.dao.storage.GenreStorage;
 
@@ -49,5 +52,54 @@ public class GenreDbStorage implements GenreStorage {
         String sql = "SELECT COUNT(*) FROM genres WHERE genre_id = ?";
         int count = jdbcTemplate.queryForObject(sql, new Object[]{genreId}, Integer.class);
         return count > 0;
+    }
+
+    protected Map<Long, LinkedHashSet<Genre>> getGenresByFilmIds(Collection<Long> filmIds) {
+        String sqlQuery = "SELECT fg.film_id, g.genre_id, g.genre_name FROM genres g " +
+                "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
+                "WHERE fg.film_id IN (:filmIds)";
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("filmIds", filmIds);
+
+        Map<Long, LinkedHashSet<Genre>> genresByFilmId = new HashMap<>();
+
+        jdbcTemplate.query(sqlQuery, parameters, (RowCallbackHandler) rs -> {
+            long filmId = rs.getLong("film_id");
+            Genre genre = rowMapperForGenre(rs);
+
+            LinkedHashSet<Genre> genres = genresByFilmId.getOrDefault(filmId, new LinkedHashSet<>());
+            genres.add(genre);
+            genresByFilmId.put(filmId, genres);
+        });
+
+        return genresByFilmId;
+    }
+
+    protected void deleteGenresByFilmId(int filmId) {
+        String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(sqlDeleteQuery, filmId);
+    }
+
+    protected void updateGenres(Film film) {
+        int filmId = film.getId();
+        LinkedHashSet<Genre> genres = film.getGenres();
+        String sqlDeleteQuery = "DELETE FROM film_genres WHERE film_id = ?";
+        jdbcTemplate.update(sqlDeleteQuery, filmId);
+
+        String sqlInsertQuery = "INSERT INTO film_genres (film_id, genre_id) VALUES (?, ?)";
+
+        List<Genre> genreList = new ArrayList<>(genres);
+
+        jdbcTemplate.batchUpdate(
+                sqlInsertQuery,
+                genreList,
+                genreList.size(),
+                (ps, genre) -> {
+                    ps.setInt(1, filmId);
+                    ps.setInt(2, genre.getId());
+                }
+        );
+        log.debug("Обновлены жанры.");
     }
 }
