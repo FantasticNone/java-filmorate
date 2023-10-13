@@ -64,9 +64,9 @@ public class GenreDbStorage implements GenreStorage {
                 + "JOIN genres g ON fg.genre_id = g.genre_id "
                 + "WHERE fg.film_id IN (:filmIdList)";
 
-        SqlParameterSource parameters = new MapSqlParameterSource("filmIdList",filmIdList);
+        SqlParameterSource parameters = new MapSqlParameterSource("filmIdList", filmIdList);
 
-        namedJdbcTemplate.query(sqlQuery,parameters, rs -> {
+        namedJdbcTemplate.query(sqlQuery, parameters, rs -> {
             Film film = filmsMap.get(rs.getInt("film_id"));
             LinkedHashSet<Genre> genres = film.getGenres();
             genres.add(Genre.builder()
@@ -74,17 +74,20 @@ public class GenreDbStorage implements GenreStorage {
                     .name(rs.getString("genre_name"))
                     .build());
             film.setGenres(genres);
-            filmsMap.put(film.getId(),film);
+            filmsMap.put(film.getId(), film);
         });
     }
 
 
     protected LinkedHashSet<Genre> getGenresByFilmId(int filmId) {
-        String sqlQuery = "SELECT g.genre_id, g.genre_name FROM genres g " +
-                "JOIN film_genres fg ON g.genre_id=fg.genre_id " +
-                "WHERE fg.film_id = ?";
+        String genreSqlQuery = "SELECT g.genre_id, g.genre_name "
+                + "FROM film_genres fg "
+                + "JOIN genres g ON fg.genre_id = g.genre_id "
+                + "WHERE fg.film_id = ?";
 
-        return new LinkedHashSet<>(jdbcTemplate.query(sqlQuery, this::rowMapperForGenre, filmId));
+        List<Genre> genreList = jdbcTemplate.query(genreSqlQuery, new Object[]{filmId}, this::rowMapperForGenre);
+
+        return new LinkedHashSet<>(genreList);
     }
 
     protected void deleteGenresByFilmId(int filmId) {

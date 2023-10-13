@@ -22,7 +22,6 @@ import java.util.List;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -32,7 +31,6 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     private final GenreDbStorage genreDbStorage;
-
 
     @Override
     public Film addFilm(Film film) {
@@ -225,10 +223,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film rowMapperForFilm(ResultSet rs, int rowNum) throws SQLException {
-        MPA rating = MPA.builder()
-                .id(rs.getInt("mpa_id"))
-                .name(rs.getString("mpa_name"))
-                .build();
 
         int filmId = rs.getInt("film_id");
         LinkedHashSet<Genre> genres = genreDbStorage.getGenresByFilmId(filmId);
@@ -239,8 +233,8 @@ public class FilmDbStorage implements FilmStorage {
                 .description(rs.getString("description"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
-                .mpa(rating)
-                .genres(genres) //new LinkedHashSet<>()
+                .mpa(rowMapperForRating(rs))
+                .genres(genres)
                 .likes(rs.getInt("likes"))
                 .build();
     }

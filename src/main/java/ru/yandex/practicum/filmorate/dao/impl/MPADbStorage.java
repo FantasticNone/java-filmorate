@@ -34,7 +34,7 @@ public class MPADbStorage implements MPAStorage {
     }
 
 
-    private MPA rowMapperForRating(ResultSet rs, int rowNum) throws SQLException {
+    protected MPA rowMapperForRating(ResultSet rs, int rowNum) throws SQLException {
         return MPA.builder()
                 .id(rs.getInt("mpa_id"))
                 .name(rs.getString("mpa_name"))
