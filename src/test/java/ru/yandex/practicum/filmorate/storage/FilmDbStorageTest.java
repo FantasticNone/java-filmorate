@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.dao.impl.FilmDbStorage;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
