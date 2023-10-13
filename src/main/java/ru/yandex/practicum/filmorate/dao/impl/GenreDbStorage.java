@@ -67,15 +67,15 @@ public class GenreDbStorage implements GenreStorage {
         SqlParameterSource parameters = new MapSqlParameterSource("filmIdList",filmIdList);
 
         namedJdbcTemplate.query(sqlQuery,parameters, rs -> {
-                    Film film = filmsMap.get(rs.getInt("film_id"));
-                    LinkedHashSet<Genre> genres = film.getGenres();
-                    genres.add(Genre.builder()
-                            .id(rs.getInt("genre_id"))
-                            .name(rs.getString("genre_name"))
-                            .build());
-                    film.setGenres(genres);
-                    filmsMap.put(film.getId(),film);
-                });
+            Film film = filmsMap.get(rs.getInt("film_id"));
+            LinkedHashSet<Genre> genres = film.getGenres();
+            genres.add(Genre.builder()
+                    .id(rs.getInt("genre_id"))
+                    .name(rs.getString("genre_name"))
+                    .build());
+            film.setGenres(genres);
+            filmsMap.put(film.getId(),film);
+        });
     }
 
 

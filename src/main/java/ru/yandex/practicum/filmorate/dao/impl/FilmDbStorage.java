@@ -240,7 +240,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .mpa(rating)
-                .genres(genres)
+                .genres(genres) //new LinkedHashSet<>()
                 .likes(rs.getInt("likes"))
                 .build();
     }

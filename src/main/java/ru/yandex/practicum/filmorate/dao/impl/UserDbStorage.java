@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
 
@@ -50,12 +51,15 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(Integer userId) {
+    public User getUserById(Integer userId) {
         String sqlQuery = "SELECT user_id, email, name, login, birthday FROM users " +
                 "WHERE user_id = ?";
 
         try {
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, new Object[]{userId}, this::mapRowToUser));
+
+            User user = jdbcTemplate.queryForObject(sqlQuery, new Object[]{userId}, this::mapRowToUser);
+
+            return user;
         } catch (EmptyResultDataAccessException exc) {
             log.debug("User id - {} not found", userId);
             throw new NotFoundException("User not found");

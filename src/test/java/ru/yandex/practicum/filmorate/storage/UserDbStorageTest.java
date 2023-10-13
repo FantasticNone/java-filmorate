@@ -54,7 +54,7 @@ class UserDbStorageTest {
         userDbStorage.createUser(testUserOne);
         userDbStorage.createUser(testUserTwo);
         userDbStorage.createUser(testUserThree);
-        actualUser = userDbStorage.getUserById(testUserThree.getId()).orElse(null);
+        actualUser = userDbStorage.getUserById(testUserThree.getId());
 
         assertEquals(expectedUser, actualUser);
     }
@@ -68,7 +68,7 @@ class UserDbStorageTest {
         testUserTwo.setId(testUserOne.getId());
         expectedUser = testUserTwo;
         userDbStorage.updateUser(testUserTwo);
-        actualUser = userDbStorage.getUserById(testUserOne.getId()).orElse(null);
+        actualUser = userDbStorage.getUserById(testUserOne.getId());
 
         assertEquals(expectedUser, actualUser);
     }

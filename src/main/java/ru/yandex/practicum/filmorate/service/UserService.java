@@ -54,8 +54,7 @@ public class UserService {
     }
 
     public User getUserById(Integer userId) {
-        return userStorage.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь по id: " + userId + " не найден."));
+        return userStorage.getUserById(userId);
     }
 
     public List<User> getFriends(Integer userId) throws NotFoundException {
