@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MPA;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -11,7 +12,7 @@ import javax.validation.ValidatorFactory;
 import java.util.Set;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTest {
 
@@ -34,6 +35,7 @@ public class FilmControllerTest {
                 .description("Test description")
                 .releaseDate(LocalDate.of(2021, 1, 1))
                 .duration(120)
+                .mpa(MPA.builder().id(1).name("G").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -55,6 +57,7 @@ public class FilmControllerTest {
                         "random text random text random text.")
                 .releaseDate(LocalDate.of(2023, 1, 1))
                 .duration(120)
+                .mpa(MPA.builder().id(1).name("G").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -73,6 +76,7 @@ public class FilmControllerTest {
                 .description("Test description")
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .duration(120)
+                .mpa(MPA.builder().id(1).name("G").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
@@ -91,6 +95,7 @@ public class FilmControllerTest {
                 .description("Test description")
                 .releaseDate(LocalDate.of(2023, 1, 1))
                 .duration(0)
+                .mpa(MPA.builder().id(1).name("G").build())
                 .build();
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
