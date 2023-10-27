@@ -1,9 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import ru.yandex.practicum.filmorate.validator.MinimumDate;
 
@@ -12,15 +9,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
+@Setter
 public class Film {
 
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -34,17 +30,16 @@ public class Film {
     @MinimumDate(message = "Дата релиза не может быть раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
 
+    @NotNull
     @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
-    private int duration;
+    private Integer duration;
 
-    @JsonIgnore
-    private Set<Long> likes = new HashSet<>();
+    private LinkedHashSet<Genre> genres;
 
-    public void addLike(Long likeId) {
-        likes.add(likeId);
-    }
+    @NotNull
+    private final MPA mpa;
 
-    public void removeLike(Long likeId) {
-        likes.remove(likeId);
-    }
+    private int likes;
+
 }
+

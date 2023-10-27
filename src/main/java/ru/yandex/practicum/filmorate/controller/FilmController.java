@@ -38,8 +38,8 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToFilm(
-            @PathVariable long id,
-            @PathVariable long userId
+            @PathVariable int id,
+            @PathVariable int userId
     ) {
         log.info("Добавление лайка к фильму: filmId={}, likeId={}", id, userId);
         filmService.addLike(id, userId);
@@ -53,7 +53,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable long id) {
+    public Film getFilmById(@PathVariable int id) {
 
         log.info("Получение фильма по id: {}", id);
         return filmService.getFilmById(id);
@@ -68,7 +68,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFilm(@PathVariable long id) {
+    public void deleteFilm(@PathVariable int id) {
 
         log.info("Удален фильм с id: {}", id);
         filmService.deleteFilm(id);
@@ -76,8 +76,8 @@ public class FilmController {
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLikeFromFilm(
-            @PathVariable long id,
-            @PathVariable long userId
+            @PathVariable int id,
+            @PathVariable int userId
     ) {
         log.info("Удаление лайка у фильма: filmId={}, likeId={}", id, userId);
         filmService.removeLike(id, userId);
